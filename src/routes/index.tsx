@@ -229,7 +229,7 @@ const MOCK_ARTICLE: Section[] = [
     level: 2,
     title: "1.2 总体目标与思路",
     paragraphs: [
-      "总体思路可概括为"平台先行、场景牵引、数据驱动、协同共建"，通过统一基座支撑多业务场景，以典型场景反哺平台迭代，形成可持续演进的能力闭环。",
+      "总体思路可概括为「平台先行、场景牵引、数据驱动、协同共建」，通过统一基座支撑多业务场景，以典型场景反哺平台迭代，形成可持续演进的能力闭环。",
     ],
   },
   { id: "s2", level: 1, title: "二、阶段性成果", paragraphs: [] },
@@ -276,7 +276,7 @@ const MOCK_ARTICLE: Section[] = [
     level: 2,
     title: "3.2 下一步举措",
     paragraphs: [
-      "下一阶段将以业务价值为核心牵引：持续沉淀领域知识库，完善模型评测与选型机制；深化 3—5 个重点业务场景的智能化改造；强化组织保障与人才培养，形成"平台—场景—组织"协同推进格局。",
+      "下一阶段将以业务价值为核心牵引：持续沉淀领域知识库，完善模型评测与选型机制；深化 3—5 个重点业务场景的智能化改造；强化组织保障与人才培养，形成「平台—场景—组织」协同推进格局。",
     ],
   },
 ];
@@ -838,7 +838,7 @@ function Workbench() {
             <div className="mt-2 rounded-md border border-dashed border-border bg-muted/40 px-3 py-2.5 text-[12.5px] text-muted-foreground">
               {hasOutline
                 ? `已生成 ${outline.length} 个章节，可在左侧编辑`
-                : "点击"AI 生成"或在左侧手动输入大纲"}
+                : "点击「AI 生成」或在左侧手动输入大纲"}
             </div>
 
             {/* references */}
@@ -1123,7 +1123,7 @@ function EmptyState() {
       </div>
       <div className="mt-2 max-w-md text-[13px] leading-relaxed text-muted-foreground">
         在右侧配置文章类型、标题、字数等参数，
-        然后依次生成"内容概要 → 文章大纲 → 全文"。
+        然后依次生成「内容概要 → 文章大纲 → 全文」。
       </div>
     </div>
   );
