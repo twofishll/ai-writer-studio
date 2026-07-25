@@ -542,9 +542,9 @@ function Workbench() {
           </button>
           <div className="flex items-center gap-2 pl-1">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary to-[color-mix(in_oklab,var(--color-primary)_60%,black)] text-[12px] font-medium text-white">
-              傅
+              梁
             </div>
-            <span className="text-[13px] text-foreground">傅立叶</span>
+            <span className="text-[13px] text-foreground">梁婷玉</span>
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
           </div>
         </div>
