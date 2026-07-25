@@ -47,53 +47,54 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
-  /* Palette: 松墨 · 米白 — deep pine-green primary, ink-black chrome,
-     rice-paper background. Low-key, oriental government feel. */
-  --background: oklch(0.965 0.012 95);       /* 米白 #F3F1EA */
-  --foreground: oklch(0.22 0.02 160);
+  /* Palette: 深海青 + 墨绿灰 */
+  --background: #F4F7F6;
+  --foreground: #1F2937;
 
-  --panel: oklch(1 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.02 160);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.02 160);
+  --panel: #FFFFFF;
+  --card: #FFFFFF;
+  --card-foreground: #1F2937;
+  --popover: #FFFFFF;
+  --popover-foreground: #1F2937;
 
-  --primary: oklch(0.48 0.09 155);           /* 松墨绿 #2F6E4E */
-  --primary-foreground: oklch(0.99 0 0);
-  --primary-soft: oklch(0.945 0.03 155);
+  --primary: #0F766E;
+  --primary-foreground: #FFFFFF;
+  --primary-soft: #CCFBF1;
 
-  --secondary: oklch(0.94 0.012 95);
-  --secondary-foreground: oklch(0.3 0.03 160);
+  --secondary: #E8EFED;
+  --secondary-foreground: #1F2937;
 
-  --muted: oklch(0.94 0.012 95);
-  --muted-foreground: oklch(0.5 0.02 150);
+  --muted: #EEF2F1;
+  --muted-foreground: #64748B;
 
-  --accent: oklch(0.945 0.03 155);
-  --accent-foreground: oklch(0.38 0.1 155);
+  --accent: #CCFBF1;
+  --accent-foreground: #115E59;
 
-  --destructive: oklch(0.58 0.19 30);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
 
-  --success: oklch(0.6 0.14 155);
-  --warning: oklch(0.75 0.14 75);
-  --citation: oklch(0.48 0.09 155);
+  --success: #16A34A;
+  --warning: #D97706;
+  --citation: #0F766E;
 
-  --border: oklch(0.9 0.014 90);
-  --input: oklch(0.9 0.014 90);
-  --ring: oklch(0.48 0.09 155);
+  --border: #DDE7E4;
+  --input: #DDE7E4;
+  --ring: #0F766E;
 
-  /* Sidebar & topbar — ink black #111612 with a warm undertone */
-  --sidebar: oklch(0.19 0.008 150);
-  --sidebar-foreground: oklch(0.82 0.015 100);
-  --sidebar-accent: oklch(0.48 0.09 155);
-  --sidebar-hover: oklch(0.26 0.012 150);
-  --sidebar-border: oklch(0.3 0.012 150);
+  --sidebar: #172B2F;
+  --sidebar-foreground: #C7D3D1;
+  --sidebar-accent: #0F766E;
+  --sidebar-hover: #1F3A3F;
+  --sidebar-border: #23393E;
 
-  --topbar: oklch(1 0 0);
-  --topbar-foreground: oklch(0.25 0.02 160);
-  --topbar-border: oklch(0.9 0.014 90);
+  --topbar: #172B2F;
+  --topbar-foreground: #E5EEEC;
+  --topbar-border: #23393E;
+
+  --polish-highlight: #FEF3C7;
+  --review-soft: #FEF2F2;
 }
 
 @layer base {
