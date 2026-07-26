@@ -556,10 +556,18 @@ function Workbench() {
     setLoadingOutline(true);
     setStage("outline");
     await delay(1200);
-    setOutline(JSON.parse(JSON.stringify(MOCK_OUTLINE)));
+    const tree = JSON.parse(JSON.stringify(MOCK_OUTLINE)) as OutlineNode[];
+    setOutline(tree);
+    setOutlineText(outlineToText(tree));
     setLoadingOutline(false);
     toast.success("文章大纲已生成");
   };
+
+  const handleOutlineTextChange = (text: string) => {
+    setOutlineText(text);
+    setOutline(textToOutline(text));
+  };
+
 
   const handleGenArticle = async () => {
     if (!title.trim()) {
