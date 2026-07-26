@@ -1063,7 +1063,7 @@ function Workbench() {
           </div>
           {!collapsedSidebar && (
             <div className="truncate text-[13.5px] font-semibold tracking-wide text-white">
-              AI 能力集约化管理平台
+              AI 智能写作工作台
             </div>
           )}
         </div>
