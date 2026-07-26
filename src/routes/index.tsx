@@ -185,15 +185,26 @@ interface Persisted {
 
 const STORAGE_KEY = "ai-writing-workbench:v3";
 
+const CUSTOM_TYPE = "其它";
+
 const ARTICLE_TYPES: ArticleType[] = [
   "会议纪要",
-  "演讲稿",
+  "讲话稿",
   "工作报告",
-  "调研报告",
   "工作总结",
+  "调研报告",
+  "整改报告",
+  "学习体会",
+  "事件类型",
   "通告",
+  "议案",
   "请示",
+  "决议",
   "通知",
+  "参阅材料",
+  "典型案例",
+  "致辞",
+  CUSTOM_TYPE,
 ];
 
 const TEMPLATES: FormatTemplate[] = [
