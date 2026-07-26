@@ -791,9 +791,26 @@ function Workbench() {
     }
     if (t === "polish" || t === "review") {
       if (stage !== "article") {
+        // 尚未生成正文：注入演示数据，并记录进入前的状态以便返回
+        if (!demoRef.current) {
+          demoRef.current = { stage, sections: cloneSections(sections), title };
+        }
         setSections(cloneSections(MOCK_ARTICLE));
+        if (!title.trim()) setTitle(DEMO_TITLE);
         setStage("article");
+        toast.info("当前展示的是示例正文，返回「AI 写作」可继续生成");
       }
+    } else if (t === "write" && demoRef.current) {
+      // 返回写作页：还原到生成前的初始状态
+      const snap = demoRef.current;
+      demoRef.current = null;
+      setStage(snap.stage);
+      setSections(snap.sections);
+      setTitle(snap.title);
+      setActiveCiteId(null);
+      setSuggestions([]);
+      setReviewStarted(false);
+      setReviewFilter("all");
     }
   };
 
