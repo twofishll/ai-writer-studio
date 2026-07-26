@@ -1685,26 +1685,26 @@ function WritePanel(props: {
         </div>
 
         {/* ---- 其他提示说明 ---- */}
-        <FieldLabel className="mt-5">其他提示说明</FieldLabel>
+        <FieldLabel className="mt-4">其他提示说明</FieldLabel>
         <Textarea
           value={p.otherReq}
           onChange={(e) => p.setOtherReq(e.target.value.slice(0, 200))}
           placeholder="如：语言风格、格式偏好等"
-          rows={3}
-          className="mt-2 resize-none text-[13px]"
+          rows={2}
+          className="mt-1.5 resize-none text-[13px]"
         />
         <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
           {p.otherReq.length}/200
         </div>
 
         {/* ---- 内容参考 ---- */}
-        <FieldLabel className="mt-5">
+        <FieldLabel className="mt-4">
           <span className="flex items-center gap-1">
             内容参考
             <InfoTip text="可上传本地文件或从知识库选择文档，AI 将参考其内容进行写作，并在正文中生成引用标注。" />
           </span>
         </FieldLabel>
-        <div className="mt-2 flex items-center gap-5">
+        <div className="mt-1.5 flex items-center gap-5">
           {(
             [
               { v: "upload", label: "上传文件" },
@@ -1732,17 +1732,17 @@ function WritePanel(props: {
         </div>
 
         {p.refMode === "upload" ? (
-          <div className="mt-2 space-y-2">
+          <div className="mt-1.5 space-y-1.5">
             <button
               onClick={p.handleUpload}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-1.5 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
             >
               <Upload className="h-3.5 w-3.5" /> 上传文件
             </button>
             {p.files.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 text-[12.5px]"
               >
                 <FileText className="h-3.5 w-3.5 text-primary" />
                 <span className="flex-1 truncate">{f}</span>
@@ -1758,17 +1758,17 @@ function WritePanel(props: {
             ))}
           </div>
         ) : (
-          <div className="mt-2 space-y-2">
+          <div className="mt-1.5 space-y-1.5">
             <button
               onClick={p.onPickKbDoc}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-1.5 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
             >
               <Plus className="h-3.5 w-3.5" /> 选择文档
             </button>
             {p.kbDocs.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 text-[12.5px]"
               >
                 <FileText className="h-3.5 w-3.5 text-primary" />
                 <span className="flex-1 truncate">{f}</span>
@@ -1786,16 +1786,16 @@ function WritePanel(props: {
         )}
 
         {/* ---- 引用知识库 ---- */}
-        <FieldLabel className="mt-5">
+        <FieldLabel className="mt-4">
           <span className="flex items-center gap-1">
             引用知识库
             <InfoTip text="选择需要检索的知识库范围，AI 会优先从所选知识库中检索相关资料作为写作依据。" />
           </span>
         </FieldLabel>
-        <div className="mt-2 space-y-2">
+        <div className="mt-1.5 space-y-1.5">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary">
+              <button className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-1.5 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary">
                 <Plus className="h-3.5 w-3.5" /> 添加知识库
               </button>
             </PopoverTrigger>
@@ -1807,7 +1807,7 @@ function WritePanel(props: {
                     <label
                       key={o.id}
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] transition",
+                        "flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-[13px] transition",
                         checked ? "bg-primary-soft text-primary" : "hover:bg-muted",
                       )}
                     >
@@ -1830,7 +1830,7 @@ function WritePanel(props: {
             return (
               <div
                 key={id}
-                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 text-[12.5px]"
               >
                 <Database className="h-3.5 w-3.5 text-primary" />
                 <span className="flex-1 truncate">{o.name}</span>
