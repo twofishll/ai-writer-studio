@@ -102,10 +102,25 @@ interface OutlineNode {
 
 interface Citation {
   id: string;
-  source: string;
+  docId: string;
+  page: number;
+  sliceIdx: number;
   section: string;
-  snippet: string;
 }
+
+interface SourceDoc {
+  id: string;
+  name: string;
+  pages: { page: number; paras: string[] }[];
+}
+
+interface FormatTemplate {
+  value: string;
+  label: string;
+  custom?: boolean;
+}
+
+type RefMode = "upload" | "kb";
 
 interface KnowledgeBase {
   id: string;
@@ -119,7 +134,7 @@ type PolishMode = "expand" | "condense" | "continue" | "summarize";
 
 interface Para {
   text: string;
-  cite?: string;
+  cites?: string[];
 }
 interface Section {
   id: string;
@@ -153,12 +168,16 @@ interface Suggestion {
 interface Persisted {
   title: string;
   articleType: ArticleType;
+  templates: FormatTemplate[];
   template: string;
   maxWords: number;
   summary: string;
   outline: OutlineNode[];
+  outlineText: string;
   otherReq: string;
+  refMode: RefMode;
   files: string[];
+  kbDocs: string[];
   kb: string[];
   stage: Stage;
   rightTab: RightTab;
@@ -168,7 +187,7 @@ interface Persisted {
   savedAt?: string;
 }
 
-const STORAGE_KEY = "ai-writing-workbench:v2";
+const STORAGE_KEY = "ai-writing-workbench:v3";
 
 const ARTICLE_TYPES: ArticleType[] = [
   "会议纪要",
