@@ -1162,15 +1162,13 @@ function Workbench() {
               icon={Home}
               label="首页"
               collapsed={collapsedSidebar}
-              comingSoon
-              onClick={() => toast.info("该模块待开发，敬请期待")}
+              onClick={() => setComingSoonOpen(true)}
             />
             <NavItem
               icon={Layers}
               label="工作空间"
               collapsed={collapsedSidebar}
-              comingSoon
-              onClick={() => toast.info("该模块待开发，敬请期待")}
+              onClick={() => setComingSoonOpen(true)}
             />
             <NavItem
               icon={PenLine}
@@ -1183,28 +1181,27 @@ function Workbench() {
               label="知识库"
               collapsed={collapsedSidebar}
               items={["知识库管理", "数据分析"]}
-              itemComingSoon
+              onItemClick={() => setComingSoonOpen(true)}
             />
             <NavGroup
               icon={Boxes}
               label="模型管理"
               collapsed={collapsedSidebar}
               items={["注册模型", "模型评测"]}
-              itemComingSoon
+              onItemClick={() => setComingSoonOpen(true)}
             />
             <NavItem
               icon={Activity}
               label="运行监控"
               collapsed={collapsedSidebar}
-              comingSoon
-              onClick={() => toast.info("该模块待开发，敬请期待")}
+              onClick={() => setComingSoonOpen(true)}
             />
             <NavGroup
               icon={Users}
               label="系统管理"
               collapsed={collapsedSidebar}
               items={["用户管理", "权限管理", "角色管理"]}
-              itemComingSoon
+              onItemClick={() => setComingSoonOpen(true)}
             />
           </nav>
         </aside>
