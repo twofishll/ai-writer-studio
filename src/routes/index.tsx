@@ -684,6 +684,7 @@ function Workbench() {
       setGenProgress(Math.round(((i + 1) / total) * 100));
     }
     await delay(200);
+    demoRef.current = null;
     setSections(cloneSections(MOCK_ARTICLE));
     setStage("article");
     toast.success("全文生成完成");
