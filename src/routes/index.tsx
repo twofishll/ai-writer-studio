@@ -164,6 +164,7 @@ interface Suggestion {
 interface Persisted {
   title: string;
   articleType: ArticleType;
+  customType?: string;
   templates: FormatTemplate[];
   template: string;
   maxWords: number;
@@ -555,7 +556,7 @@ function Workbench() {
   const [customType, setCustomType] = useState("");
   const [templates, setTemplates] = useState<FormatTemplate[]>(TEMPLATES);
   const [template, setTemplate] = useState("default");
-  const [maxWords, setMaxWords] = useState(3000);
+  const [maxWords, setMaxWords] = useState(2000);
   const [summary, setSummary] = useState(DEFAULT_SUMMARY);
   const [outline, setOutline] = useState<OutlineNode[]>([]);
   const [outlineText, setOutlineText] = useState("");
@@ -613,6 +614,7 @@ function Workbench() {
     if (!data) return;
     if (data.title !== undefined) setTitle(data.title);
     if (data.articleType) setArticleType(data.articleType);
+    if (data.customType) setCustomType(data.customType);
     if (data.templates?.length) setTemplates(data.templates);
     if (data.template) setTemplate(data.template);
     if (data.maxWords) setMaxWords(data.maxWords);
@@ -698,6 +700,7 @@ function Workbench() {
     const payload: Persisted = {
       title,
       articleType,
+      customType,
       templates,
       template,
       maxWords,
