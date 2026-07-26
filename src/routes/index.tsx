@@ -1904,14 +1904,14 @@ function PolishPanel(props: {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-5 py-3 scrollbar-thin">
         <div className="text-[14px] font-semibold text-foreground">改写润色</div>
-        <div className="mt-3 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2.5 text-[12.5px] leading-relaxed text-[#1D4ED8]">
+        <div className="mt-2 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2 text-[12.5px] leading-relaxed text-[#1D4ED8]">
           请选中左侧正文的文本内容，并选择下方的操作或手动输入要求。
         </div>
 
         {selection && (
-          <div className="mt-3 flex items-start gap-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-2.5 py-2 text-[12.5px] leading-relaxed text-[#78350F]">
+          <div className="mt-2 flex items-start gap-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-2.5 py-1.5 text-[12.5px] leading-relaxed text-[#78350F]">
             <span className="line-clamp-3 flex-1">「{selection.text}」</span>
             <button
               onClick={onClear}
@@ -1924,20 +1924,20 @@ function PolishPanel(props: {
         )}
 
         {loading && (
-          <div className="mt-3 rounded-md border border-border bg-muted/40 p-3">
+          <div className="mt-2 rounded-md border border-border bg-muted/40 p-2.5">
             <div className="flex items-center gap-2 text-[13px] text-primary">
               <Loader2 className="h-4 w-4 animate-spin" /> AI 正在润色中…
             </div>
-            <div className="mt-3 space-y-2">
-              <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
-              <div className="h-3.5 w-11/12 animate-pulse rounded bg-muted" />
-              <div className="h-3.5 w-2/3 animate-pulse rounded bg-muted" />
+            <div className="mt-2 space-y-1.5">
+              <div className="h-3 w-full animate-pulse rounded bg-muted" />
+              <div className="h-3 w-11/12 animate-pulse rounded bg-muted" />
+              <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
             </div>
           </div>
         )}
 
         {!loading && result && (
-          <div className="mt-3">
+          <div className="mt-2">
             <div className="flex items-center justify-between">
               <FieldLabel>润色结果</FieldLabel>
               <button
@@ -1950,12 +1950,12 @@ function PolishPanel(props: {
             <Textarea
               value={result}
               onChange={(e) => setResult(e.target.value)}
-              rows={6}
-              className="mt-2 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
+              rows={5}
+              className="mt-1.5 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
             />
             <Button
               onClick={onReplace}
-              className="mt-2 h-9 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#1D4ED8]"
+              className="mt-1.5 h-8 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#1D4ED8]"
             >
               <Check className="mr-1.5 h-3.5 w-3.5" /> 替换原文
             </Button>
@@ -1963,7 +1963,7 @@ function PolishPanel(props: {
         )}
       </div>
 
-      <div className="shrink-0 border-t bg-panel px-3 py-2.5">
+      <div className="shrink-0 border-t bg-panel px-3 py-2">
         <div className="flex items-center gap-2">
           {(["expand", "condense", "continue", "summarize"] as PolishMode[]).map(
             (m) => {
@@ -1973,7 +1973,7 @@ function PolishPanel(props: {
                   key={m}
                   onClick={() => setMode(on ? null : m)}
                   className={cn(
-                    "h-8 flex-1 rounded-md border text-[12.5px] transition",
+                    "h-7 flex-1 rounded-md border text-[12.5px] transition",
                     on
                       ? "border-primary bg-primary font-medium text-white"
                       : "border-border bg-panel text-foreground hover:border-primary/40 hover:bg-muted",
@@ -1993,23 +1993,23 @@ function PolishPanel(props: {
               if (e.key === "Enter" && canRun) onRun();
             }}
             placeholder="告诉 AI 你想怎么修改"
-            className="h-9 flex-1 rounded-full px-3.5 text-[13px]"
+            className="h-8 flex-1 rounded-full px-3.5 text-[13px]"
           />
           <button
             onClick={onRun}
             disabled={!canRun}
             title="开始润色"
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition",
               canRun
                 ? "bg-primary text-white hover:bg-[#1D4ED8]"
                 : "cursor-not-allowed bg-muted text-muted-foreground",
             )}
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-3.5 w-3.5" />
             )}
           </button>
         </div>
