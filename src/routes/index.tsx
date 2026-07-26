@@ -1214,6 +1214,10 @@ function Workbench() {
             </div>
           )}
 
+          <EditorToolbar />
+
+
+
           <div className="flex flex-1 overflow-hidden">
             {stage === "article" ? (
               <ArticleView
