@@ -1458,6 +1458,29 @@ function WritePanel(props: {
           ))}
         </div>
 
+        {p.articleType === CUSTOM_TYPE && (
+          <>
+            <FieldLabel required className="mt-4">
+              其它文章类型
+            </FieldLabel>
+            <Input
+              value={p.customType}
+              onChange={(e) => p.setCustomType(e.target.value.slice(0, 30))}
+              placeholder="请输入文章类型，如：需求规格说明书"
+              className={cn(
+                "mt-2 h-9 text-[13px]",
+                !p.customType.trim() &&
+                  "border-destructive/60 focus-visible:ring-destructive/30",
+              )}
+            />
+            {!p.customType.trim() && (
+              <div className="mt-1 text-[12px] text-destructive">
+                其它文章类型为必填项
+              </div>
+            )}
+          </>
+        )}
+
         {/* ---- 格式模板 ---- */}
         <div className="mt-5 flex items-center justify-between">
           <FieldLabel required>格式模板</FieldLabel>
