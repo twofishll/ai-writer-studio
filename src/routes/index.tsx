@@ -88,15 +88,7 @@ export const Route = createFileRoute("/")({
 
 /* ============================== types ============================== */
 
-type ArticleType =
-  | "会议纪要"
-  | "演讲稿"
-  | "工作报告"
-  | "调研报告"
-  | "工作总结"
-  | "通告"
-  | "请示"
-  | "通知";
+type ArticleType = string;
 
 interface OutlineNode {
   id: string;
