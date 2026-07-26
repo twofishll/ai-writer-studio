@@ -1906,20 +1906,25 @@ function PolishPanel(props: {
     <>
       <div className="flex-1 overflow-y-auto px-5 py-3 scrollbar-thin">
         <div className="text-[14px] font-semibold text-foreground">改写润色</div>
-        <div className="mt-2 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2 text-[12.5px] leading-relaxed text-[#1D4ED8]">
+        <div className="mt-2 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1 text-[12px] leading-relaxed text-[#1D4ED8]">
           请选中左侧正文的文本内容，并选择下方的操作或手动输入要求。
         </div>
 
         {selection && (
-          <div className="mt-2 flex items-start gap-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-2.5 py-1.5 text-[12.5px] leading-relaxed text-[#78350F]">
-            <span className="line-clamp-3 flex-1">「{selection.text}」</span>
-            <button
-              onClick={onClear}
-              className="shrink-0 rounded p-0.5 text-[#92400E] hover:bg-[#FDE68A]"
-              title="取消选择"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
+          <div className="mt-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] text-muted-foreground">已选内容</span>
+              <button
+                onClick={onClear}
+                className="rounded p-0.5 text-muted-foreground hover:bg-muted"
+                title="取消选择"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-foreground">
+              「{selection.text}」
+            </p>
           </div>
         )}
 
