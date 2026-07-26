@@ -615,6 +615,7 @@ function Workbench() {
   const [confirmDialog, setConfirmDialog] = useState<
     null | "acceptAll" | "ignoreAll"
   >(null);
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
 
   const articleRef = useRef<HTMLDivElement>(null);
   const restoredRef = useRef(false);
@@ -1161,15 +1162,13 @@ function Workbench() {
               icon={Home}
               label="首页"
               collapsed={collapsedSidebar}
-              comingSoon
-              onClick={() => toast.info("该模块待开发，敬请期待")}
+              onClick={() => setComingSoonOpen(true)}
             />
             <NavItem
               icon={Layers}
               label="工作空间"
               collapsed={collapsedSidebar}
-              comingSoon
-              onClick={() => toast.info("该模块待开发，敬请期待")}
+              onClick={() => setComingSoonOpen(true)}
             />
             <NavItem
               icon={PenLine}
@@ -1182,28 +1181,27 @@ function Workbench() {
               label="知识库"
               collapsed={collapsedSidebar}
               items={["知识库管理", "数据分析"]}
-              itemComingSoon
+              onItemClick={() => setComingSoonOpen(true)}
             />
             <NavGroup
               icon={Boxes}
               label="模型管理"
               collapsed={collapsedSidebar}
               items={["注册模型", "模型评测"]}
-              itemComingSoon
+              onItemClick={() => setComingSoonOpen(true)}
             />
             <NavItem
               icon={Activity}
               label="运行监控"
               collapsed={collapsedSidebar}
-              comingSoon
-              onClick={() => toast.info("该模块待开发，敬请期待")}
+              onClick={() => setComingSoonOpen(true)}
             />
             <NavGroup
               icon={Users}
               label="系统管理"
               collapsed={collapsedSidebar}
               items={["用户管理", "权限管理", "角色管理"]}
-              itemComingSoon
+              onItemClick={() => setComingSoonOpen(true)}
             />
           </nav>
         </aside>
@@ -1434,6 +1432,22 @@ function Workbench() {
               )}
             >
               确定
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={comingSoonOpen} onOpenChange={setComingSoonOpen}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>模块待开发</AlertDialogTitle>
+            <AlertDialogDescription>
+              该功能模块正在开发中，敬请期待上线。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setComingSoonOpen(false)}>
+              知道了
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -2370,40 +2384,27 @@ function NavItem({
   label,
   active,
   collapsed,
-  comingSoon,
   onClick,
 }: {
   icon: typeof Home;
   label: string;
   active?: boolean;
   collapsed?: boolean;
-  comingSoon?: boolean;
   onClick?: () => void;
 }) {
   return (
     <button
       onClick={onClick}
       disabled={active}
-      title={comingSoon ? "该模块待开发，敬请期待" : undefined}
       className={cn(
         "relative flex h-9 items-center gap-2.5 rounded-md px-3 text-[13px] transition",
         active
           ? "bg-primary text-primary-foreground"
           : "text-sidebar-foreground/85 hover:bg-sidebar-hover hover:text-white",
-        comingSoon && !active && "opacity-80",
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
-      {!collapsed && (
-        <>
-          <span className="truncate">{label}</span>
-          {comingSoon && (
-            <span className="ml-auto rounded border border-white/20 px-1 py-0 text-[10px] text-white/60">
-              待开发
-            </span>
-          )}
-        </>
-      )}
+      {!collapsed && <span className="truncate">{label}</span>}
     </button>
   );
 }
@@ -2413,13 +2414,13 @@ function NavGroup({
   label,
   items,
   collapsed,
-  itemComingSoon,
+  onItemClick,
 }: {
   icon: typeof Home;
   label: string;
   items: string[];
   collapsed?: boolean;
-  itemComingSoon?: boolean;
+  onItemClick?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -2443,18 +2444,10 @@ function NavGroup({
           {items.map((it) => (
             <button
               key={it}
-              onClick={() => {
-                if (itemComingSoon) toast.info("该模块待开发，敬请期待");
-              }}
-              title={itemComingSoon ? "该模块待开发，敬请期待" : undefined}
+              onClick={onItemClick}
               className="flex h-8 w-full items-center rounded-md px-3 text-[12.5px] text-sidebar-foreground/70 transition hover:bg-sidebar-hover hover:text-white"
             >
-              <span className="flex-1 truncate text-left">{it}</span>
-              {itemComingSoon && (
-                <span className="rounded border border-white/20 px-1 py-0 text-[10px] text-white/60">
-                  待开发
-                </span>
-              )}
+              <span className="truncate text-left">{it}</span>
             </button>
           ))}
         </div>
