@@ -1443,15 +1443,15 @@ function WritePanel(props: {
   const p = props;
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-5 py-3 scrollbar-thin">
         <FieldLabel required>文章类型</FieldLabel>
-        <div className="mt-2 grid grid-cols-4 gap-2">
+        <div className="mt-1.5 grid grid-cols-4 gap-2">
           {ARTICLE_TYPES.map((t) => (
             <button
               key={t}
               onClick={() => p.setArticleType(t)}
               className={cn(
-                "h-8 rounded-md border text-[12px] transition",
+                "h-7 rounded-md border text-[12px] transition",
                 p.articleType === t
                   ? "border-primary bg-primary-soft font-medium text-primary"
                   : "border-border text-foreground hover:border-primary/40 hover:bg-muted",
@@ -1464,7 +1464,7 @@ function WritePanel(props: {
 
         {p.articleType === CUSTOM_TYPE && (
           <>
-            <FieldLabel required className="mt-4">
+            <FieldLabel required className="mt-3">
               其它文章类型
             </FieldLabel>
             <Input
@@ -1472,7 +1472,7 @@ function WritePanel(props: {
               onChange={(e) => p.setCustomType(e.target.value.slice(0, 30))}
               placeholder="请输入文章类型，如：需求规格说明书"
               className={cn(
-                "mt-2 h-9 text-[13px]",
+                "mt-1.5 h-8 text-[13px]",
                 !p.customType.trim() &&
                   "border-destructive/60 focus-visible:ring-destructive/30",
               )}
