@@ -1202,49 +1202,8 @@ function Workbench() {
         </aside>
       </div>
 
-      {/* ============ CITATION DRAWER ============ */}
-      <Sheet open={!!activeCite} onOpenChange={(o) => !o && setActiveCite(null)}>
-        <SheetContent side="right" className="w-[420px] sm:max-w-none">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2 text-[15px]">
-              <Quote className="h-4 w-4 text-primary" />
-              引用来源 [{activeCite?.id}]
-            </SheetTitle>
-          </SheetHeader>
-          {activeCite && (
-            <div className="mt-6 space-y-5 px-1">
-              <div className="rounded-lg border bg-muted/40 p-4">
-                <div className="flex items-start gap-2">
-                  <FileCheck2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <div className="min-w-0">
-                    <div className="truncate text-[13.5px] font-medium text-foreground">
-                      {activeCite.source}
-                    </div>
-                    <div className="mt-0.5 text-[12px] text-muted-foreground">
-                      {activeCite.section}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div className="mb-2 text-[12px] font-medium text-muted-foreground">
-                  引用片段
-                </div>
-                <blockquote className="rounded-md border-l-2 border-primary bg-primary-soft/40 px-4 py-3 text-[13.5px] leading-relaxed text-foreground">
-                  {activeCite.snippet}
-                </blockquote>
-              </div>
-              <Button
-                variant="outline"
-                className="w-full gap-1.5"
-                onClick={() => toast.success("已在来源文件中定位")}
-              >
-                <MapPin className="h-4 w-4" /> 定位原文
-              </Button>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* citation preview is rendered inline in ArticleView */}
+
 
       {/* ============ CONFIRM DIALOG ============ */}
       <AlertDialog
