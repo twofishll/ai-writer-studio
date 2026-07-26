@@ -598,6 +598,9 @@ function Workbench() {
 
   const articleRef = useRef<HTMLDivElement>(null);
   const restoredRef = useRef(false);
+  const demoRef = useRef<null | { stage: Stage; sections: Section[]; title: string }>(
+    null,
+  );
 
   useEffect(() => {
     if (restoredRef.current) return;
