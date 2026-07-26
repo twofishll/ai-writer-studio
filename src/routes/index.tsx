@@ -2069,13 +2069,13 @@ function ReviewPanel(props: {
     return (
       <>
         <div className="flex flex-1 flex-col items-center justify-center px-8 py-10 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-soft text-primary">
-            <ShieldAlert className="h-7 w-7" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-soft text-primary">
+            <ShieldAlert className="h-6 w-6" />
           </div>
-          <div className="mt-5 text-[15px] font-semibold text-foreground">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             智能审查
           </div>
-          <div className="mt-2 text-[12.5px] leading-relaxed text-muted-foreground">
+          <div className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
             自动检查政治敏感、语法逻辑、
             <br />
             格式规范与法律条款四类问题，
@@ -2084,7 +2084,7 @@ function ReviewPanel(props: {
           </div>
           <Button
             onClick={onStart}
-            className="mt-6 h-10 gap-1.5 bg-primary px-6 text-[14px] font-medium text-white hover:bg-[#1D4ED8]"
+            className="mt-5 h-9 gap-1.5 bg-primary px-6 text-[14px] font-medium text-white hover:bg-[#1D4ED8]"
           >
             <ListChecks className="h-4 w-4" /> 开始审查
           </Button>
@@ -2107,14 +2107,14 @@ function ReviewPanel(props: {
 
   return (
     <>
-      <div className="border-b px-4 py-3">
+      <div className="border-b px-5 py-2.5">
         <div className="flex items-center justify-between text-[12.5px] text-muted-foreground">
           <span>
             共 {suggestions.length} 条建议，
             <span className="text-primary">{pending}</span> 条待处理
           </span>
         </div>
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           <FilterChip
             active={filter === "all"}
             onClick={() => setFilter("all")}
@@ -2132,13 +2132,13 @@ function ReviewPanel(props: {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-5 py-2.5 scrollbar-thin">
         {filtered.length === 0 && (
           <div className="mt-10 text-center text-[13px] text-muted-foreground">
             当前分类下暂无建议
           </div>
         )}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {filtered.map((s) => {
             const style = CATEGORY_STYLE[s.category];
             const active = activeId === s.id;
@@ -2148,7 +2148,7 @@ function ReviewPanel(props: {
                 key={s.id}
                 onClick={() => onActivate(s.id)}
                 className={cn(
-                  "cursor-pointer rounded-lg border bg-panel p-3 transition",
+                  "cursor-pointer rounded-lg border bg-panel p-2.5 transition",
                   active
                     ? "border-primary shadow-[0_4px_16px_-8px_var(--color-primary)]"
                     : "border-border hover:border-primary/40",
@@ -2157,7 +2157,7 @@ function ReviewPanel(props: {
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className="rounded-full px-2 py-0.5 text-[11.5px] font-medium"
+                    className="rounded-full px-2 py-0 text-[11.5px] font-medium"
                     style={{ background: style.bg, color: style.fg }}
                   >
                     {s.category}
@@ -2173,20 +2173,20 @@ function ReviewPanel(props: {
                     </span>
                   )}
                 </div>
-                <div className="mt-2 space-y-1.5 text-[12.5px] leading-relaxed">
-                  <div className="rounded-md bg-[#FEF2F2] px-2 py-1.5 text-[#B91C1C] line-through decoration-[#DC2626]/60">
+                <div className="mt-1.5 space-y-1 text-[12.5px] leading-relaxed">
+                  <div className="rounded-md bg-[#FEF2F2] px-2 py-1 text-[#B91C1C] line-through decoration-[#DC2626]/60">
                     {s.original}
                   </div>
-                  <div className="rounded-md bg-primary-soft px-2 py-1.5 text-[#1D4ED8]">
+                  <div className="rounded-md bg-primary-soft px-2 py-1 text-[#1D4ED8]">
                     {s.suggestion}
                   </div>
                 </div>
-                <div className="mt-2 flex items-start gap-1 text-[11.5px] text-muted-foreground">
+                <div className="mt-1.5 flex items-start gap-1 text-[11.5px] text-muted-foreground">
                   <Info className="mt-0.5 h-3 w-3 shrink-0" />
                   <span>{s.explanation}</span>
                 </div>
                 {s.status === "pending" && (
-                  <div className="mt-3 flex items-center justify-end gap-1.5">
+                  <div className="mt-2 flex items-center justify-end gap-1.5">
                     <Button
                       size="sm"
                       variant="outline"
@@ -2194,7 +2194,7 @@ function ReviewPanel(props: {
                         e.stopPropagation();
                         onIgnore(s.id);
                       }}
-                      className="h-7 border-border px-2.5 text-[12px]"
+                      className="h-6 border-border px-2.5 text-[12px]"
                     >
                       忽略
                     </Button>
@@ -2204,7 +2204,7 @@ function ReviewPanel(props: {
                         e.stopPropagation();
                         onAccept(s.id);
                       }}
-                      className="h-7 bg-primary px-2.5 text-[12px] text-white hover:bg-[#1D4ED8]"
+                      className="h-6 bg-primary px-2.5 text-[12px] text-white hover:bg-[#1D4ED8]"
                     >
                       采纳
                     </Button>
@@ -2216,27 +2216,27 @@ function ReviewPanel(props: {
         </div>
       </div>
 
-      <div className="border-t bg-panel p-3">
+      <div className="border-t bg-panel p-2.5">
         <div className="grid grid-cols-3 gap-2">
           <Button
             variant="outline"
             onClick={onIgnoreAll}
             disabled={pending === 0}
-            className="h-9 border-border text-[12.5px]"
+            className="h-8 border-border text-[12.5px]"
           >
             全部忽略
           </Button>
           <Button
             variant="outline"
             onClick={onRerun}
-            className="h-9 border-border text-[12.5px]"
+            className="h-8 border-border text-[12.5px]"
           >
             <RefreshCw className="mr-1 h-3 w-3" /> 重新审查
           </Button>
           <Button
             onClick={onAcceptAll}
             disabled={pending === 0}
-            className="h-9 bg-primary text-[12.5px] text-white hover:bg-[#1D4ED8] disabled:opacity-50"
+            className="h-8 bg-primary text-[12.5px] text-white hover:bg-[#1D4ED8] disabled:opacity-50"
           >
             全部采纳
           </Button>
