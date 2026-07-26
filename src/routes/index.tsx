@@ -2371,40 +2371,27 @@ function NavItem({
   label,
   active,
   collapsed,
-  comingSoon,
   onClick,
 }: {
   icon: typeof Home;
   label: string;
   active?: boolean;
   collapsed?: boolean;
-  comingSoon?: boolean;
   onClick?: () => void;
 }) {
   return (
     <button
       onClick={onClick}
       disabled={active}
-      title={comingSoon ? "该模块待开发，敬请期待" : undefined}
       className={cn(
         "relative flex h-9 items-center gap-2.5 rounded-md px-3 text-[13px] transition",
         active
           ? "bg-primary text-primary-foreground"
           : "text-sidebar-foreground/85 hover:bg-sidebar-hover hover:text-white",
-        comingSoon && !active && "opacity-80",
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
-      {!collapsed && (
-        <>
-          <span className="truncate">{label}</span>
-          {comingSoon && (
-            <span className="ml-auto rounded border border-white/20 px-1 py-0 text-[10px] text-white/60">
-              待开发
-            </span>
-          )}
-        </>
-      )}
+      {!collapsed && <span className="truncate">{label}</span>}
     </button>
   );
 }
