@@ -467,12 +467,16 @@ function cloneSections(s: Section[]): Section[] {
 function Workbench() {
   const [title, setTitle] = useState(DEFAULT_TITLE);
   const [articleType, setArticleType] = useState<ArticleType>("工作报告");
+  const [templates, setTemplates] = useState<FormatTemplate[]>(TEMPLATES);
   const [template, setTemplate] = useState("default");
   const [maxWords, setMaxWords] = useState(3000);
   const [summary, setSummary] = useState(DEFAULT_SUMMARY);
   const [outline, setOutline] = useState<OutlineNode[]>([]);
+  const [outlineText, setOutlineText] = useState("");
   const [otherReq, setOtherReq] = useState(DEFAULT_OTHER);
+  const [refMode, setRefMode] = useState<RefMode>("upload");
   const [files, setFiles] = useState<string[]>([]);
+  const [kbDocs, setKbDocs] = useState<string[]>([]);
   const [kb, setKb] = useState<string[]>(["kb1"]);
   const [stage, setStage] = useState<Stage>("empty");
 
@@ -482,7 +486,7 @@ function Workbench() {
   const [genSectionIdx, setGenSectionIdx] = useState(0);
   const [titleError, setTitleError] = useState(false);
 
-  const [activeCite, setActiveCite] = useState<Citation | null>(null);
+  const [activeCiteId, setActiveCiteId] = useState<string | null>(null);
   const [collapsedSidebar, setCollapsedSidebar] = useState(false);
 
   /* new: shared article + tabs + polish + review */
