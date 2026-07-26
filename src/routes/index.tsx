@@ -1847,16 +1847,16 @@ function WritePanel(props: {
         <div className="h-2" />
       </div>
 
-      <div className="border-t bg-panel p-3">
+      <div className="border-t bg-panel p-2.5">
         {!p.hasOutline && (
-          <div className="mb-2 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
             <Info className="h-3 w-3" /> 请先生成或填写文章大纲
           </div>
         )}
         <Button
           onClick={p.onGenArticle}
           disabled={!p.hasOutline || p.generating}
-          className="h-10 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#1D4ED8] disabled:opacity-50"
+          className="h-9 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#1D4ED8] disabled:opacity-50"
         >
           {p.generating ? (
             <>
