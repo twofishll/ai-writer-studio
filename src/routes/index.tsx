@@ -181,7 +181,7 @@ const ARTICLE_TYPES: ArticleType[] = [
   "通知",
 ];
 
-const TEMPLATES = [
+const TEMPLATES: FormatTemplate[] = [
   { value: "default", label: "默认格式" },
   { value: "official", label: "正式公文格式" },
   { value: "brief", label: "简洁汇报格式" },
@@ -193,10 +193,9 @@ const KB_OPTIONS: KnowledgeBase[] = [
   { id: "kb3", name: "会议材料库" },
 ];
 
-const DEFAULT_TITLE = "关于推进企业 AI 能力建设的阶段性工作报告";
-const DEFAULT_SUMMARY =
-  "总结企业 AI 能力建设的背景、阶段成果、现存问题和下一步计划，突出知识库建设、场景落地和组织协同。";
-const DEFAULT_OTHER = "语言正式、结构清晰、避免虚构具体数据。";
+const DEFAULT_TITLE = "";
+const DEFAULT_SUMMARY = "";
+const DEFAULT_OTHER = "";
 
 const MOCK_SUMMARY =
   "本报告围绕企业 AI 能力建设的总体目标，梳理阶段性成果与关键抓手，重点介绍知识库建设、典型场景落地以及组织协同机制。同时结合当前问题与外部趋势，提出下一阶段以业务价值为牵引的推进方向与保障措施。";
