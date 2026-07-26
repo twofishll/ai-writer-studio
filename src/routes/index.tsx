@@ -2826,7 +2826,9 @@ function ArticleView({
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <div className="w-[220px] shrink-0 overflow-y-auto border-r bg-panel/60 px-4 py-5 scrollbar-thin">
+      <div
+        className={`w-[220px] shrink-0 overflow-y-auto border-r bg-panel/60 px-4 py-5 scrollbar-thin ${activeCite ? "hidden" : ""}`}
+      >
         <div className="mb-3 text-[12px] font-medium text-muted-foreground">
           目录导航
         </div>
