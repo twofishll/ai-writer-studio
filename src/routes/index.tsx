@@ -1054,7 +1054,7 @@ function Workbench() {
         <div
           className={cn(
             "flex h-full items-center gap-2 border-r px-4 transition-all",
-            collapsedSidebar ? "w-14" : "w-[184px]",
+            collapsedSidebar ? "w-14" : "w-[200px]",
           )}
           style={{ borderColor: "var(--color-topbar-border)" }}
         >
@@ -1130,7 +1130,7 @@ function Workbench() {
         <aside
           className={cn(
             "flex shrink-0 flex-col overflow-y-auto transition-all scrollbar-thin",
-            collapsedSidebar ? "w-14" : "w-[184px]",
+            collapsedSidebar ? "w-14" : "w-[200px]",
           )}
           style={{
             background: "var(--color-sidebar)",
@@ -1245,7 +1245,7 @@ function Workbench() {
         </main>
 
         {/* ============ RIGHT PANEL ============ */}
-        <aside className="flex w-[296px] shrink-0 flex-col border-l bg-panel">
+        <aside className="flex w-[360px] shrink-0 flex-col border-l bg-panel">
           {/* tabs — fixed */}
           <div className="flex h-11 shrink-0 items-center border-b">
             {(
