@@ -88,15 +88,7 @@ export const Route = createFileRoute("/")({
 
 /* ============================== types ============================== */
 
-type ArticleType =
-  | "会议纪要"
-  | "演讲稿"
-  | "工作报告"
-  | "调研报告"
-  | "工作总结"
-  | "通告"
-  | "请示"
-  | "通知";
+type ArticleType = string;
 
 interface OutlineNode {
   id: string;
@@ -172,6 +164,7 @@ interface Suggestion {
 interface Persisted {
   title: string;
   articleType: ArticleType;
+  customType?: string;
   templates: FormatTemplate[];
   template: string;
   maxWords: number;
@@ -193,15 +186,26 @@ interface Persisted {
 
 const STORAGE_KEY = "ai-writing-workbench:v3";
 
+const CUSTOM_TYPE = "其它";
+
 const ARTICLE_TYPES: ArticleType[] = [
   "会议纪要",
-  "演讲稿",
+  "讲话稿",
   "工作报告",
-  "调研报告",
   "工作总结",
+  "调研报告",
+  "整改报告",
+  "学习体会",
+  "事件类型",
   "通告",
+  "议案",
   "请示",
+  "决议",
   "通知",
+  "参阅材料",
+  "典型案例",
+  "致辞",
+  CUSTOM_TYPE,
 ];
 
 const TEMPLATES: FormatTemplate[] = [
@@ -549,9 +553,10 @@ function cloneSections(s: Section[]): Section[] {
 function Workbench() {
   const [title, setTitle] = useState(DEFAULT_TITLE);
   const [articleType, setArticleType] = useState<ArticleType>("工作报告");
+  const [customType, setCustomType] = useState("");
   const [templates, setTemplates] = useState<FormatTemplate[]>(TEMPLATES);
   const [template, setTemplate] = useState("default");
-  const [maxWords, setMaxWords] = useState(3000);
+  const [maxWords, setMaxWords] = useState(2000);
   const [summary, setSummary] = useState(DEFAULT_SUMMARY);
   const [outline, setOutline] = useState<OutlineNode[]>([]);
   const [outlineText, setOutlineText] = useState("");
@@ -609,6 +614,7 @@ function Workbench() {
     if (!data) return;
     if (data.title !== undefined) setTitle(data.title);
     if (data.articleType) setArticleType(data.articleType);
+    if (data.customType) setCustomType(data.customType);
     if (data.templates?.length) setTemplates(data.templates);
     if (data.template) setTemplate(data.template);
     if (data.maxWords) setMaxWords(data.maxWords);
@@ -694,6 +700,7 @@ function Workbench() {
     const payload: Persisted = {
       title,
       articleType,
+      customType,
       templates,
       template,
       maxWords,
@@ -1041,7 +1048,7 @@ function Workbench() {
     <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground">
       {/* ============ TOP BAR ============ */}
       <header
-        className="flex h-14 shrink-0 items-center border-b"
+        className="flex h-13 shrink-0 items-center border-b"
         style={{
           background: "var(--color-topbar)",
           color: "var(--color-topbar-foreground)",
@@ -1051,7 +1058,7 @@ function Workbench() {
         <div
           className={cn(
             "flex h-full items-center gap-2 border-r px-4 transition-all",
-            collapsedSidebar ? "w-14" : "w-[200px]",
+            collapsedSidebar ? "w-14" : "w-[184px]",
           )}
           style={{ borderColor: "var(--color-topbar-border)" }}
         >
@@ -1127,7 +1134,7 @@ function Workbench() {
         <aside
           className={cn(
             "flex shrink-0 flex-col overflow-y-auto transition-all scrollbar-thin",
-            collapsedSidebar ? "w-14" : "w-[200px]",
+            collapsedSidebar ? "w-14" : "w-[184px]",
           )}
           style={{
             background: "var(--color-sidebar)",
@@ -1242,7 +1249,7 @@ function Workbench() {
         </main>
 
         {/* ============ RIGHT PANEL ============ */}
-        <aside className="flex w-[360px] shrink-0 flex-col border-l bg-panel">
+        <aside className="flex w-[332px] shrink-0 flex-col border-l bg-panel">
           {/* tabs — fixed */}
           <div className="flex h-11 shrink-0 items-center border-b">
             {(
@@ -1274,6 +1281,8 @@ function Workbench() {
             <WritePanel
               articleType={articleType}
               setArticleType={setArticleType}
+              customType={customType}
+              setCustomType={setCustomType}
               templates={templates}
               setTemplates={setTemplates}
               template={template}
@@ -1399,6 +1408,8 @@ function Workbench() {
 function WritePanel(props: {
   articleType: ArticleType;
   setArticleType: (v: ArticleType) => void;
+  customType: string;
+  setCustomType: (v: string) => void;
   templates: FormatTemplate[];
   setTemplates: React.Dispatch<React.SetStateAction<FormatTemplate[]>>;
   template: string;
@@ -1454,6 +1465,29 @@ function WritePanel(props: {
             </button>
           ))}
         </div>
+
+        {p.articleType === CUSTOM_TYPE && (
+          <>
+            <FieldLabel required className="mt-4">
+              其它文章类型
+            </FieldLabel>
+            <Input
+              value={p.customType}
+              onChange={(e) => p.setCustomType(e.target.value.slice(0, 30))}
+              placeholder="请输入文章类型，如：需求规格说明书"
+              className={cn(
+                "mt-2 h-9 text-[13px]",
+                !p.customType.trim() &&
+                  "border-destructive/60 focus-visible:ring-destructive/30",
+              )}
+            />
+            {!p.customType.trim() && (
+              <div className="mt-1 text-[12px] text-destructive">
+                其它文章类型为必填项
+              </div>
+            )}
+          </>
+        )}
 
         {/* ---- 格式模板 ---- */}
         <div className="mt-5 flex items-center justify-between">
@@ -1572,7 +1606,7 @@ function WritePanel(props: {
         <FieldLabel required className="mt-5">
           <span className="flex items-center gap-1">
             最大字数
-            <Info className="h-3 w-3 text-muted-foreground" />
+            <InfoTip text="生成正文的目标字数上限，默认 2000 字，最大 10000 字。" />
           </span>
         </FieldLabel>
         <div className="mt-2 flex items-center gap-3">
@@ -1671,7 +1705,7 @@ function WritePanel(props: {
         <FieldLabel className="mt-5">
           <span className="flex items-center gap-1">
             内容参考
-            <Info className="h-3 w-3 text-muted-foreground" />
+            <InfoTip text="可上传本地文件或从知识库选择文档，AI 将参考其内容进行写作，并在正文中生成引用标注。" />
           </span>
         </FieldLabel>
         <div className="mt-2 flex items-center gap-5">
@@ -1759,7 +1793,7 @@ function WritePanel(props: {
         <FieldLabel className="mt-5">
           <span className="flex items-center gap-1">
             引用知识库
-            <Info className="h-3 w-3 text-muted-foreground" />
+            <InfoTip text="选择需要检索的知识库范围，AI 会优先从所选知识库中检索相关资料作为写作依据。" />
           </span>
         </FieldLabel>
         <div className="mt-2 space-y-2">
@@ -2260,10 +2294,34 @@ function FieldLabel({
   className?: string;
 }) {
   return (
-    <div className={cn("text-[13px] font-medium text-foreground", className)}>
-      {required && <span className="mr-0.5 text-destructive">*</span>}
+    <div
+      className={cn(
+        "flex items-center gap-1 text-[13px] font-medium text-foreground",
+        className,
+      )}
+    >
+      {required && <span className="text-destructive">*</span>}
       {children}
     </div>
+  );
+}
+
+function InfoTip({ text }: { text: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label="说明"
+          className="inline-flex items-center text-muted-foreground transition hover:text-primary"
+        >
+          <Info className="h-3.5 w-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[240px] text-[12px]">
+        {text}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
