@@ -1063,11 +1063,15 @@ function Workbench() {
                 articleRef={articleRef}
                 sections={sections}
                 citations={CITATIONS}
+                docs={SOURCE_DOCS}
+                activeCiteId={activeCiteId}
                 onScrollTo={scrollToSection}
                 onOpenCitation={openCitation}
+                onCloseCitation={() => setActiveCiteId(null)}
                 highlights={highlights}
                 onSelectionMouseUp={captureSelection}
               />
+
             ) : (
               <div className="flex flex-1 flex-col overflow-y-auto p-6 scrollbar-thin">
                 <div className="mx-auto w-full max-w-[860px]">
