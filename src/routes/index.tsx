@@ -2398,13 +2398,13 @@ function NavGroup({
   label,
   items,
   collapsed,
-  itemComingSoon,
+  onItemClick,
 }: {
   icon: typeof Home;
   label: string;
   items: string[];
   collapsed?: boolean;
-  itemComingSoon?: boolean;
+  onItemClick?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -2428,18 +2428,10 @@ function NavGroup({
           {items.map((it) => (
             <button
               key={it}
-              onClick={() => {
-                if (itemComingSoon) toast.info("该模块待开发，敬请期待");
-              }}
-              title={itemComingSoon ? "该模块待开发，敬请期待" : undefined}
+              onClick={onItemClick}
               className="flex h-8 w-full items-center rounded-md px-3 text-[12.5px] text-sidebar-foreground/70 transition hover:bg-sidebar-hover hover:text-white"
             >
-              <span className="flex-1 truncate text-left">{it}</span>
-              {itemComingSoon && (
-                <span className="rounded border border-white/20 px-1 py-0 text-[10px] text-white/60">
-                  待开发
-                </span>
-              )}
+              <span className="truncate text-left">{it}</span>
             </button>
           ))}
         </div>
