@@ -615,6 +615,7 @@ function Workbench() {
   const [confirmDialog, setConfirmDialog] = useState<
     null | "acceptAll" | "ignoreAll"
   >(null);
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
 
   const articleRef = useRef<HTMLDivElement>(null);
   const restoredRef = useRef(false);
