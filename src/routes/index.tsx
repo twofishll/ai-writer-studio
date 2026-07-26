@@ -520,12 +520,17 @@ function Workbench() {
     if (!data) return;
     if (data.title !== undefined) setTitle(data.title);
     if (data.articleType) setArticleType(data.articleType);
+    if (data.templates?.length) setTemplates(data.templates);
     if (data.template) setTemplate(data.template);
     if (data.maxWords) setMaxWords(data.maxWords);
     if (data.summary !== undefined) setSummary(data.summary);
     if (data.outline) setOutline(data.outline);
+    if (data.outlineText !== undefined) setOutlineText(data.outlineText);
+    else if (data.outline?.length) setOutlineText(outlineToText(data.outline));
     if (data.otherReq !== undefined) setOtherReq(data.otherReq);
+    if (data.refMode) setRefMode(data.refMode);
     if (data.files) setFiles(data.files);
+    if (data.kbDocs) setKbDocs(data.kbDocs);
     if (data.kb) setKb(data.kb);
     if (data.stage) setStage(data.stage);
     if (data.rightTab) setRightTab(data.rightTab);
