@@ -2419,12 +2419,149 @@ function renderParaWithHighlights(text: string, hits: Highlight[]) {
   return nodes;
 }
 
+function truncateDocName(name: string, max = 10) {
+  const dot = name.lastIndexOf(".");
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  return base.length > max ? `${base.slice(0, max)}…` : base;
+}
+
+function CiteTag({
+  citation,
+  doc,
+  active,
+  onClick,
+}: {
+  citation: Citation;
+  doc: SourceDoc | undefined;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const label = doc ? truncateDocName(doc.name) : "引用";
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          onClick={onClick}
+          className={cn(
+            "mx-1 inline-flex max-w-[170px] translate-y-[-1px] items-center gap-1 rounded border px-1.5 py-[1px] align-middle text-[12px] leading-[18px] transition",
+            active
+              ? "border-[#1D4ED8] bg-[#DBEAFE] text-[#1D4ED8]"
+              : "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE]",
+          )}
+        >
+          <FileText className="h-3 w-3 shrink-0" />
+          <span className="truncate">{label}</span>
+          <span className="opacity-70">[{citation.id}]</span>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        className="max-w-[320px] border-0 bg-[#111827] text-white"
+      >
+        <div className="text-[12px] font-medium leading-relaxed">
+          {doc?.name}
+        </div>
+        <div className="mt-0.5 text-[11.5px] text-white/70">
+          第 {citation.page} 页 · {citation.section} · 引用 [{citation.id}]
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function DocPreviewPanel({
+  citation,
+  doc,
+  onClose,
+}: {
+  citation: Citation;
+  doc: SourceDoc;
+  onClose: () => void;
+}) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = document.getElementById(
+      `slice-${doc.id}-${citation.page}-${citation.sliceIdx}`,
+    );
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [citation.id, citation.page, citation.sliceIdx, doc.id]);
+
+  return (
+    <div className="flex w-[380px] shrink-0 flex-col border-l bg-panel">
+      <div className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
+        <FileCheck2 className="h-4 w-4 shrink-0 text-primary" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[13px] font-medium text-foreground">
+            {doc.name}
+          </div>
+          <div className="text-[11.5px] text-muted-foreground">
+            第 {citation.page} 页 · 引用 [{citation.id}]
+          </div>
+        </div>
+        <button
+          onClick={() => toast.success("已开始下载源文档")}
+          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-primary"
+          title="下载"
+        >
+          <Download className="h-4 w-4" />
+        </button>
+        <button
+          onClick={onClose}
+          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          title="关闭"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div
+        ref={bodyRef}
+        className="flex-1 overflow-y-auto bg-muted/40 px-3 py-3 scrollbar-thin"
+      >
+        {doc.pages.map((pg) => (
+          <div
+            key={pg.page}
+            className="mb-3 rounded-md border bg-panel px-4 py-4 shadow-sm"
+          >
+            <div className="mb-2 text-[11.5px] text-muted-foreground">
+              第 {pg.page} 页
+            </div>
+            <div className="space-y-2.5 text-[12.5px] leading-[1.9] text-foreground">
+              {pg.paras.map((t, i) => {
+                const hit =
+                  pg.page === citation.page && i === citation.sliceIdx;
+                return (
+                  <p
+                    key={i}
+                    id={`slice-${doc.id}-${pg.page}-${i}`}
+                    className={cn(
+                      "rounded px-1 py-0.5 transition",
+                      hit &&
+                        "bg-[#FEF3C7] outline outline-1 outline-[#F5D67C]",
+                    )}
+                  >
+                    {t}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ArticleView({
   title,
   sections,
   citations,
+  docs,
+  activeCiteId,
   onScrollTo,
   onOpenCitation,
+  onCloseCitation,
   articleRef,
   highlights,
   onSelectionMouseUp,
@@ -2432,13 +2569,20 @@ function ArticleView({
   title: string;
   sections: Section[];
   citations: Citation[];
+  docs: SourceDoc[];
+  activeCiteId: string | null;
   onScrollTo: (id: string) => void;
   onOpenCitation: (id: string) => void;
+  onCloseCitation: () => void;
   articleRef: React.RefObject<HTMLDivElement | null>;
   highlights: Highlight[];
   onSelectionMouseUp: () => void;
 }) {
   const topSections = sections.filter((s) => s.level === 1);
+  const activeCite = citations.find((c) => c.id === activeCiteId) ?? null;
+  const activeDoc = activeCite
+    ? docs.find((d) => d.id === activeCite.docId)
+    : undefined;
 
   return (
     <div className="flex flex-1 overflow-hidden">
@@ -2471,7 +2615,7 @@ function ArticleView({
       >
         <div className="mx-auto max-w-[780px] px-10 py-10">
           <h1 className="text-[26px] font-bold leading-tight text-foreground">
-            {title}
+            {title || "未命名文章"}
           </h1>
           <div className="mt-3 flex items-center gap-3 text-[12.5px] text-muted-foreground">
             <span>AI 生成</span>
@@ -2498,14 +2642,19 @@ function ArticleView({
                       data-para-text={p.text}
                     >
                       {renderParaWithHighlights(p.text, hits)}
-                      {p.cite && (
-                        <sup
-                          onClick={() => onOpenCitation(p.cite!)}
-                          title="查看引用来源"
-                        >
-                          [{p.cite}]
-                        </sup>
-                      )}
+                      {(p.cites ?? []).map((cid) => {
+                        const c = citations.find((x) => x.id === cid);
+                        if (!c) return null;
+                        return (
+                          <CiteTag
+                            key={cid}
+                            citation={c}
+                            doc={docs.find((d) => d.id === c.docId)}
+                            active={activeCiteId === cid}
+                            onClick={() => onOpenCitation(cid)}
+                          />
+                        );
+                      })}
                     </p>
                   );
                 })}
@@ -2514,23 +2663,43 @@ function ArticleView({
 
             <Separator className="my-8" />
             <div className="text-[13px] font-medium text-foreground">引用来源</div>
-            <ol className="mt-2 space-y-1.5 text-[12.5px] text-muted-foreground">
-              {citations.map((c) => (
-                <li key={c.id}>
-                  [{c.id}]{" "}
-                  <button
-                    className="text-primary hover:underline"
-                    onClick={() => onOpenCitation(c.id)}
-                  >
-                    {c.source}
-                  </button>{" "}
-                  · {c.section}
-                </li>
-              ))}
+            <ol className="mt-2 space-y-1.5">
+              {citations.map((c) => {
+                const d = docs.find((x) => x.id === c.docId);
+                const active = activeCiteId === c.id;
+                return (
+                  <li key={c.id}>
+                    <button
+                      onClick={() => onOpenCitation(c.id)}
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-[12.5px] transition",
+                        active
+                          ? "border-[#1D4ED8] bg-[#EFF6FF] text-[#1D4ED8]"
+                          : "border-border text-muted-foreground hover:border-primary/40 hover:bg-muted",
+                      )}
+                    >
+                      <span className="shrink-0 font-medium">[{c.id}]</span>
+                      <FileText className="h-3.5 w-3.5 shrink-0" />
+                      <span className="flex-1 truncate">{d?.name}</span>
+                      <span className="shrink-0 text-[11.5px] opacity-80">
+                        第 {c.page} 页 · {c.section}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ol>
           </article>
         </div>
       </div>
+
+      {activeCite && activeDoc && (
+        <DocPreviewPanel
+          citation={activeCite}
+          doc={activeDoc}
+          onClose={onCloseCitation}
+        />
+      )}
     </div>
   );
 }
