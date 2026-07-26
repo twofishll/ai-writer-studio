@@ -1582,145 +1582,119 @@ function PolishPanel(props: {
     onClear,
   } = props;
 
+  const canRun = !!selection && (!!mode || !!custom.trim()) && !loading;
+
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-thin">
-        <div className="flex items-center gap-2 text-[13px] font-medium text-foreground">
-          <MessageSquareQuote className="h-4 w-4 text-primary" />
-          所选内容
+      <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-thin">
+        <div className="text-[14px] font-semibold text-foreground">改写润色</div>
+        <div className="mt-3 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2.5 text-[12.5px] leading-relaxed text-[#1D4ED8]">
+          请选中左侧正文的文本内容，并选择下方的操作或手动输入要求。
         </div>
-        {selection ? (
-          <div className="mt-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-3 py-2.5 text-[13px] leading-relaxed text-[#78350F]">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                「{selection.text}」
-                <div className="mt-1 text-[11.5px] text-[#92400E]/80">
-                  共 {selection.text.length} 字
-                </div>
-              </div>
-              <button
-                onClick={onClear}
-                className="rounded p-0.5 text-[#92400E] hover:bg-[#FDE68A]"
-                title="取消选择"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-2 rounded-md border border-dashed border-border bg-muted/40 px-3 py-4 text-center text-[12.5px] text-muted-foreground">
-            请在左侧正文中<span className="text-primary">选中文字</span>后开始润色
+
+        {selection && (
+          <div className="mt-3 flex items-start gap-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-2.5 py-2 text-[12.5px] leading-relaxed text-[#78350F]">
+            <span className="line-clamp-3 flex-1">「{selection.text}」</span>
+            <button
+              onClick={onClear}
+              className="shrink-0 rounded p-0.5 text-[#92400E] hover:bg-[#FDE68A]"
+              title="取消选择"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           </div>
         )}
 
-        <FieldLabel className="mt-5">润色方式</FieldLabel>
-        <ToggleGroup
-          type="single"
-          value={mode ?? ""}
-          onValueChange={(v) => setMode((v || null) as PolishMode | null)}
-          className="mt-2 grid grid-cols-4 gap-2"
-        >
-          {(["expand", "condense", "continue", "summarize"] as PolishMode[]).map(
-            (m) => (
-              <ToggleGroupItem
-                key={m}
-                value={m}
-                aria-label={POLISH_MODE_LABEL[m]}
-                className={cn(
-                  "h-9 rounded-md border border-border bg-panel text-[13px] text-foreground transition",
-                  "hover:border-primary/40 hover:bg-muted",
-                  "data-[state=on]:border-[#0F766E] data-[state=on]:bg-[#CCFBF1] data-[state=on]:text-[#0F766E] data-[state=on]:font-medium",
-                )}
-              >
-                {POLISH_MODE_LABEL[m]}
-              </ToggleGroupItem>
-            ),
-          )}
-        </ToggleGroup>
+        {loading && (
+          <div className="mt-3 rounded-md border border-border bg-muted/40 p-3">
+            <div className="flex items-center gap-2 text-[13px] text-primary">
+              <Loader2 className="h-4 w-4 animate-spin" /> AI 正在润色中…
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
+              <div className="h-3.5 w-11/12 animate-pulse rounded bg-muted" />
+              <div className="h-3.5 w-2/3 animate-pulse rounded bg-muted" />
+            </div>
+          </div>
+        )}
 
-        <FieldLabel className="mt-5">自定义要求</FieldLabel>
-        <Textarea
-          value={custom}
-          onChange={(e) => setCustom(e.target.value.slice(0, 200))}
-          placeholder="告诉 AI 你希望如何修改，例如：语言更加正式，突出工作成效。"
-          rows={4}
-          className="mt-2 resize-none text-[13px]"
-        />
-        <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
-          {custom.length}/200
-        </div>
-
-        {(loading || result) && (
-          <div className="mt-5">
+        {!loading && result && (
+          <div className="mt-3">
             <div className="flex items-center justify-between">
               <FieldLabel>润色结果</FieldLabel>
-              {!loading && result && (
-                <button
-                  onClick={onRun}
-                  className="flex items-center gap-1 text-[12.5px] text-primary hover:underline"
-                >
-                  <RefreshCw className="h-3 w-3" /> 重新生成
-                </button>
-              )}
+              <button
+                onClick={onRun}
+                className="flex items-center gap-1 text-[12.5px] text-primary hover:underline"
+              >
+                <RefreshCw className="h-3 w-3" /> 重新生成
+              </button>
             </div>
-            {loading ? (
-              <div className="mt-2 rounded-md border border-border bg-muted/40 p-4">
-                <div className="flex items-center gap-2 text-[13px] text-primary">
-                  <Loader2 className="h-4 w-4 animate-spin" /> AI 正在润色中…
-                </div>
-                <div className="mt-3 space-y-2">
-                  <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
-                  <div className="h-3.5 w-11/12 animate-pulse rounded bg-muted" />
-                  <div className="h-3.5 w-2/3 animate-pulse rounded bg-muted" />
-                </div>
-              </div>
-            ) : (
-              <Textarea
-                value={result}
-                onChange={(e) => setResult(e.target.value)}
-                rows={6}
-                className="mt-2 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
-              />
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="border-t bg-panel p-3">
-        {!result ? (
-          <Button
-            onClick={onRun}
-            disabled={loading || !selection}
-            className="h-10 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#115E59] disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> 润色中…
-              </>
-            ) : (
-              <>
-                <Wand2 className="mr-1.5 h-4 w-4" /> 开始润色
-              </>
-            )}
-          </Button>
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              onClick={onRun}
-              disabled={loading}
-              className="h-10 border-border text-[13.5px]"
-            >
-              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> 重新生成
-            </Button>
+            <Textarea
+              value={result}
+              onChange={(e) => setResult(e.target.value)}
+              rows={6}
+              className="mt-2 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
+            />
             <Button
               onClick={onReplace}
-              className="h-10 bg-primary text-[13.5px] font-medium text-white hover:bg-[#115E59]"
+              className="mt-2 h-9 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#115E59]"
             >
               <Check className="mr-1.5 h-3.5 w-3.5" /> 替换原文
             </Button>
           </div>
         )}
+      </div>
+
+      <div className="shrink-0 border-t bg-panel px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          {(["expand", "condense", "continue", "summarize"] as PolishMode[]).map(
+            (m) => {
+              const on = mode === m;
+              return (
+                <button
+                  key={m}
+                  onClick={() => setMode(on ? null : m)}
+                  className={cn(
+                    "h-8 flex-1 rounded-md border text-[12.5px] transition",
+                    on
+                      ? "border-primary bg-primary font-medium text-white"
+                      : "border-border bg-panel text-foreground hover:border-primary/40 hover:bg-muted",
+                  )}
+                >
+                  {POLISH_MODE_LABEL[m]}
+                </button>
+              );
+            },
+          )}
+        </div>
+        <div className="mt-2 flex items-center gap-2">
+          <Input
+            value={custom}
+            onChange={(e) => setCustom(e.target.value.slice(0, 200))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && canRun) onRun();
+            }}
+            placeholder="告诉 AI 你想怎么修改"
+            className="h-9 flex-1 rounded-full px-3.5 text-[13px]"
+          />
+          <button
+            onClick={onRun}
+            disabled={!canRun}
+            title="开始润色"
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
+              canRun
+                ? "bg-primary text-white hover:bg-[#115E59]"
+                : "cursor-not-allowed bg-muted text-muted-foreground",
+            )}
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
     </>
   );
