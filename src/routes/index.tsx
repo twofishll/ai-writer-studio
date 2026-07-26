@@ -1077,7 +1077,7 @@ function Workbench() {
           <Button
             size="sm"
             onClick={handleExport}
-            className="h-8 gap-1.5 bg-primary text-[13px] text-white hover:bg-[#115E59]"
+            className="h-8 gap-1.5 bg-primary text-[13px] text-white hover:bg-[#1D4ED8]"
           >
             <Download className="h-3.5 w-3.5" /> 导出全文
           </Button>
@@ -1358,7 +1358,7 @@ function Workbench() {
               }}
               className={cn(
                 confirmDialog === "acceptAll"
-                  ? "bg-primary hover:bg-[#115E59]"
+                  ? "bg-primary hover:bg-[#1D4ED8]"
                   : "bg-destructive hover:bg-destructive/90",
               )}
             >
@@ -1804,7 +1804,7 @@ function WritePanel(props: {
         <Button
           onClick={p.onGenArticle}
           disabled={!p.hasOutline || p.generating}
-          className="h-10 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#115E59] disabled:opacity-50"
+          className="h-10 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#1D4ED8] disabled:opacity-50"
         >
           {p.generating ? (
             <>
@@ -1903,7 +1903,7 @@ function PolishPanel(props: {
             />
             <Button
               onClick={onReplace}
-              className="mt-2 h-9 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#115E59]"
+              className="mt-2 h-9 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#1D4ED8]"
             >
               <Check className="mr-1.5 h-3.5 w-3.5" /> 替换原文
             </Button>
@@ -1950,7 +1950,7 @@ function PolishPanel(props: {
             className={cn(
               "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
               canRun
-                ? "bg-primary text-white hover:bg-[#115E59]"
+                ? "bg-primary text-white hover:bg-[#1D4ED8]"
                 : "cursor-not-allowed bg-muted text-muted-foreground",
             )}
           >
@@ -2032,7 +2032,7 @@ function ReviewPanel(props: {
           </div>
           <Button
             onClick={onStart}
-            className="mt-6 h-10 gap-1.5 bg-primary px-6 text-[14px] font-medium text-white hover:bg-[#115E59]"
+            className="mt-6 h-10 gap-1.5 bg-primary px-6 text-[14px] font-medium text-white hover:bg-[#1D4ED8]"
           >
             <ListChecks className="h-4 w-4" /> 开始审查
           </Button>
@@ -2125,7 +2125,7 @@ function ReviewPanel(props: {
                   <div className="rounded-md bg-[#FEF2F2] px-2 py-1.5 text-[#B91C1C] line-through decoration-[#DC2626]/60">
                     {s.original}
                   </div>
-                  <div className="rounded-md bg-primary-soft px-2 py-1.5 text-[#115E59]">
+                  <div className="rounded-md bg-primary-soft px-2 py-1.5 text-[#1D4ED8]">
                     {s.suggestion}
                   </div>
                 </div>
@@ -2152,7 +2152,7 @@ function ReviewPanel(props: {
                         e.stopPropagation();
                         onAccept(s.id);
                       }}
-                      className="h-7 bg-primary px-2.5 text-[12px] text-white hover:bg-[#115E59]"
+                      className="h-7 bg-primary px-2.5 text-[12px] text-white hover:bg-[#1D4ED8]"
                     >
                       采纳
                     </Button>
@@ -2184,7 +2184,7 @@ function ReviewPanel(props: {
           <Button
             onClick={onAcceptAll}
             disabled={pending === 0}
-            className="h-9 bg-primary text-[12.5px] text-white hover:bg-[#115E59] disabled:opacity-50"
+            className="h-9 bg-primary text-[12.5px] text-white hover:bg-[#1D4ED8] disabled:opacity-50"
           >
             全部采纳
           </Button>
@@ -2477,7 +2477,7 @@ function OutlineEditor({
                 ])
               }
               disabled={generating}
-              className="flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-[12.5px] text-primary-foreground transition hover:bg-[#115E59] disabled:opacity-40"
+              className="flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-[12.5px] text-primary-foreground transition hover:bg-[#1D4ED8] disabled:opacity-40"
             >
               <Plus className="h-3 w-3" /> 新增章节
             </button>
@@ -3028,5 +3028,5 @@ function buildExportHtml(title: string, sections: Section[], citations: Citation
         `<li>[${c.id}] ${SOURCE_DOCS.find((d) => d.id === c.docId)?.name ?? ""} · 第 ${c.page} 页 · ${c.section}</li>`,
     )
     .join("");
-  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:780px;margin:40px auto;padding:0 24px;color:#1F2937;line-height:1.9}h1{font-size:24px}h2{font-size:18px;margin-top:20px}sup{color:#0F766E;font-weight:600;margin:0 2px}ol{color:#4b5563;font-size:13px}</style></head><body><h1 style="font-size:26px;text-align:center">${title}</h1>${body}<hr/><h3>引用来源</h3><ol>${refs}</ol></body></html>`;
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:780px;margin:40px auto;padding:0 24px;color:#1F2937;line-height:1.9}h1{font-size:24px}h2{font-size:18px;margin-top:20px}sup{color:#2563EB;font-weight:600;margin:0 2px}ol{color:#4b5563;font-size:13px}</style></head><body><h1 style="font-size:26px;text-align:center">${title}</h1>${body}<hr/><h3>引用来源</h3><ol>${refs}</ol></body></html>`;
 }
