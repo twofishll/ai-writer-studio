@@ -1282,6 +1282,7 @@ function Workbench() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </TooltipProvider>
   );
 }
 
