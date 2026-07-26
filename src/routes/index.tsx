@@ -1157,8 +1157,20 @@ function Workbench() {
           }}
         >
           <nav className="flex flex-col gap-0.5 px-2 py-3">
-            <NavItem icon={Home} label="首页" collapsed={collapsedSidebar} />
-            <NavItem icon={Layers} label="工作空间" collapsed={collapsedSidebar} />
+            <NavItem
+              icon={Home}
+              label="首页"
+              collapsed={collapsedSidebar}
+              comingSoon
+              onClick={() => toast.info("该模块待开发，敬请期待")}
+            />
+            <NavItem
+              icon={Layers}
+              label="工作空间"
+              collapsed={collapsedSidebar}
+              comingSoon
+              onClick={() => toast.info("该模块待开发，敬请期待")}
+            />
             <NavItem
               icon={PenLine}
               label="智能写作"
@@ -1169,20 +1181,29 @@ function Workbench() {
               icon={BookOpen}
               label="知识库"
               collapsed={collapsedSidebar}
-              items={["知识库管理", "知识库应用", "数据分析"]}
+              items={["知识库管理", "数据分析"]}
+              itemComingSoon
             />
             <NavGroup
               icon={Boxes}
               label="模型管理"
               collapsed={collapsedSidebar}
-              items={["注册模型", "启动模型", "运行模型", "集群信息"]}
+              items={["注册模型", "模型评测"]}
+              itemComingSoon
             />
-            <NavItem icon={Activity} label="运行监控" collapsed={collapsedSidebar} />
+            <NavItem
+              icon={Activity}
+              label="运行监控"
+              collapsed={collapsedSidebar}
+              comingSoon
+              onClick={() => toast.info("该模块待开发，敬请期待")}
+            />
             <NavGroup
               icon={Users}
               label="系统管理"
               collapsed={collapsedSidebar}
               items={["用户管理", "权限管理", "角色管理"]}
+              itemComingSoon
             />
           </nav>
         </aside>
@@ -2349,23 +2370,40 @@ function NavItem({
   label,
   active,
   collapsed,
+  comingSoon,
+  onClick,
 }: {
   icon: typeof Home;
   label: string;
   active?: boolean;
   collapsed?: boolean;
+  comingSoon?: boolean;
+  onClick?: () => void;
 }) {
   return (
     <button
+      onClick={onClick}
+      disabled={active}
+      title={comingSoon ? "该模块待开发，敬请期待" : undefined}
       className={cn(
-        "flex h-9 items-center gap-2.5 rounded-md px-3 text-[13px] transition",
+        "relative flex h-9 items-center gap-2.5 rounded-md px-3 text-[13px] transition",
         active
           ? "bg-primary text-primary-foreground"
           : "text-sidebar-foreground/85 hover:bg-sidebar-hover hover:text-white",
+        comingSoon && !active && "opacity-80",
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
-      {!collapsed && <span className="truncate">{label}</span>}
+      {!collapsed && (
+        <>
+          <span className="truncate">{label}</span>
+          {comingSoon && (
+            <span className="ml-auto rounded border border-white/20 px-1 py-0 text-[10px] text-white/60">
+              待开发
+            </span>
+          )}
+        </>
+      )}
     </button>
   );
 }
@@ -2375,11 +2413,13 @@ function NavGroup({
   label,
   items,
   collapsed,
+  itemComingSoon,
 }: {
   icon: typeof Home;
   label: string;
   items: string[];
   collapsed?: boolean;
+  itemComingSoon?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -2403,9 +2443,18 @@ function NavGroup({
           {items.map((it) => (
             <button
               key={it}
+              onClick={() => {
+                if (itemComingSoon) toast.info("该模块待开发，敬请期待");
+              }}
+              title={itemComingSoon ? "该模块待开发，敬请期待" : undefined}
               className="flex h-8 w-full items-center rounded-md px-3 text-[12.5px] text-sidebar-foreground/70 transition hover:bg-sidebar-hover hover:text-white"
             >
-              {it}
+              <span className="flex-1 truncate text-left">{it}</span>
+              {itemComingSoon && (
+                <span className="rounded border border-white/20 px-1 py-0 text-[10px] text-white/60">
+                  待开发
+                </span>
+              )}
             </button>
           ))}
         </div>
