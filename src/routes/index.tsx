@@ -1247,7 +1247,7 @@ function Workbench() {
         {/* ============ RIGHT PANEL ============ */}
         <aside className="flex w-[360px] shrink-0 flex-col border-l bg-panel">
           {/* tabs — fixed */}
-          <div className="flex h-11 shrink-0 items-center border-b">
+          <div className="flex h-10 shrink-0 items-center border-b">
             {(
               [
                 { key: "write", label: "AI 写作" },
