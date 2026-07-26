@@ -38,22 +38,26 @@ import {
   CheckCircle2,
   XCircle,
   MessageSquareQuote,
+  Send,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -102,10 +106,25 @@ interface OutlineNode {
 
 interface Citation {
   id: string;
-  source: string;
+  docId: string;
+  page: number;
+  sliceIdx: number;
   section: string;
-  snippet: string;
 }
+
+interface SourceDoc {
+  id: string;
+  name: string;
+  pages: { page: number; paras: string[] }[];
+}
+
+interface FormatTemplate {
+  value: string;
+  label: string;
+  custom?: boolean;
+}
+
+type RefMode = "upload" | "kb";
 
 interface KnowledgeBase {
   id: string;
@@ -119,7 +138,7 @@ type PolishMode = "expand" | "condense" | "continue" | "summarize";
 
 interface Para {
   text: string;
-  cite?: string;
+  cites?: string[];
 }
 interface Section {
   id: string;
@@ -153,12 +172,16 @@ interface Suggestion {
 interface Persisted {
   title: string;
   articleType: ArticleType;
+  templates: FormatTemplate[];
   template: string;
   maxWords: number;
   summary: string;
   outline: OutlineNode[];
+  outlineText: string;
   otherReq: string;
+  refMode: RefMode;
   files: string[];
+  kbDocs: string[];
   kb: string[];
   stage: Stage;
   rightTab: RightTab;
@@ -168,7 +191,7 @@ interface Persisted {
   savedAt?: string;
 }
 
-const STORAGE_KEY = "ai-writing-workbench:v2";
+const STORAGE_KEY = "ai-writing-workbench:v3";
 
 const ARTICLE_TYPES: ArticleType[] = [
   "会议纪要",
@@ -181,7 +204,7 @@ const ARTICLE_TYPES: ArticleType[] = [
   "通知",
 ];
 
-const TEMPLATES = [
+const TEMPLATES: FormatTemplate[] = [
   { value: "default", label: "默认格式" },
   { value: "official", label: "正式公文格式" },
   { value: "brief", label: "简洁汇报格式" },
@@ -193,10 +216,9 @@ const KB_OPTIONS: KnowledgeBase[] = [
   { id: "kb3", name: "会议材料库" },
 ];
 
-const DEFAULT_TITLE = "关于推进企业 AI 能力建设的阶段性工作报告";
-const DEFAULT_SUMMARY =
-  "总结企业 AI 能力建设的背景、阶段成果、现存问题和下一步计划，突出知识库建设、场景落地和组织协同。";
-const DEFAULT_OTHER = "语言正式、结构清晰、避免虚构具体数据。";
+const DEFAULT_TITLE = "";
+const DEFAULT_SUMMARY = "";
+const DEFAULT_OTHER = "";
 
 const MOCK_SUMMARY =
   "本报告围绕企业 AI 能力建设的总体目标，梳理阶段性成果与关键抓手，重点介绍知识库建设、典型场景落地以及组织协同机制。同时结合当前问题与外部趋势，提出下一阶段以业务价值为牵引的推进方向与保障措施。";
@@ -229,21 +251,54 @@ const MOCK_OUTLINE: OutlineNode[] = [
   },
 ];
 
+const SOURCE_DOCS: SourceDoc[] = [
+  {
+    id: "d1",
+    name: "企业 AI 能力建设实施方案（2026）.pdf",
+    pages: [
+      {
+        page: 1,
+        paras: [
+          "为深入贯彻集团数字化转型战略部署，加快推进人工智能能力体系建设，结合公司实际，制定本实施方案。",
+          "本方案适用于集团总部及所属各单位在人工智能平台建设、场景应用与数据治理等方面的工作。",
+        ],
+      },
+      {
+        page: 3,
+        paras: [
+          "第二章 阶段目标。总体分为能力搭建、场景推广、深化运营三个阶段推进。",
+          "到 2026 年底，形成覆盖办公、经营、研发等核心场景的 AI 能力基座，建成统一知识库与模型管理平台，实现主要业务领域的智能化辅助能力落地。",
+          "各单位应按照阶段目标制定年度实施计划，并纳入年度重点工作考核。",
+        ],
+      },
+      {
+        page: 7,
+        paras: [
+          "第五章 运营与评估。建立以业务价值为导向的效果度量体系，定期开展场景运营复盘。",
+          "办公类场景应优先纳入推广清单，复杂业务场景需同步开展数据治理与流程融合。",
+        ],
+      },
+    ],
+  },
+  {
+    id: "d2",
+    name: "AI 项目阶段复盘会议纪要.docx",
+    pages: [
+      {
+        page: 2,
+        paras: [
+          "议题三 场景与协同。会议指出，各业务线在 AI 应用中普遍存在数据分散、场景碎片化的问题，需要以知识库为中枢，建立跨部门的协同评审与效果度量机制。",
+          "会议要求，信息化部门牵头，于下季度前完成跨部门协同评审流程的试运行。",
+        ],
+      },
+    ],
+  },
+];
+
 const CITATIONS: Citation[] = [
-  {
-    id: "1",
-    source: "企业 AI 能力建设实施方案（2026）.pdf",
-    section: "第二章 · 阶段目标",
-    snippet:
-      "到 2026 年底，形成覆盖办公、经营、研发等核心场景的 AI 能力基座，建成统一知识库与模型管理平台，实现主要业务领域的智能化辅助能力落地。",
-  },
-  {
-    id: "2",
-    source: "AI 项目阶段复盘会议纪要.docx",
-    section: "议题三 · 场景与协同",
-    snippet:
-      "会议指出，各业务线在 AI 应用中普遍存在数据分散、场景碎片化的问题，需要以知识库为中枢，建立跨部门的协同评审与效果度量机制。",
-  },
+  { id: "1", docId: "d1", page: 3, sliceIdx: 1, section: "第二章 · 阶段目标" },
+  { id: "2", docId: "d2", page: 2, sliceIdx: 0, section: "议题三 · 场景与协同" },
+  { id: "3", docId: "d1", page: 7, sliceIdx: 1, section: "第五章 · 运营与评估" },
 ];
 
 const MOCK_ARTICLE: Section[] = [
@@ -258,7 +313,7 @@ const MOCK_ARTICLE: Section[] = [
       },
       {
         text: "根据集团总体规划，本阶段以打造统一的 AI 能力基座为核心目标，重点建设知识库、模型管理与应用编排三大能力。",
-        cite: "1",
+        cites: ["1"],
       },
     ],
   },
@@ -296,7 +351,7 @@ const MOCK_ARTICLE: Section[] = [
       },
       {
         text: "从复盘情况看，办公类场景的接受度和活跃度显著高于其他类别，但在复杂业务场景中仍需加强数据治理与流程融合。",
-        cite: "2",
+        cites: ["2", "3"],
       },
     ],
   },
@@ -458,6 +513,32 @@ function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function outlineToText(nodes: OutlineNode[]): string {
+  const lines: string[] = [];
+  nodes.forEach((n) => {
+    lines.push(n.title);
+    (n.children ?? []).forEach((c) => lines.push(`  ${c.title}`));
+  });
+  return lines.join("\n");
+}
+
+function textToOutline(text: string): OutlineNode[] {
+  const roots: OutlineNode[] = [];
+  text.split("\n").forEach((raw, i) => {
+    const line = raw.trim();
+    if (!line) return;
+    const isChild = /^\s/.test(raw) || /^\d+[.．]\d/.test(line);
+    const node: OutlineNode = { id: `n${i}-${line.slice(0, 6)}`, title: line };
+    if (isChild && roots.length) {
+      const parent = roots[roots.length - 1];
+      parent.children = [...(parent.children ?? []), node];
+    } else {
+      roots.push({ ...node, children: [] });
+    }
+  });
+  return roots;
+}
+
 function cloneSections(s: Section[]): Section[] {
   return s.map((sec) => ({ ...sec, paragraphs: sec.paragraphs.map((p) => ({ ...p })) }));
 }
@@ -467,12 +548,16 @@ function cloneSections(s: Section[]): Section[] {
 function Workbench() {
   const [title, setTitle] = useState(DEFAULT_TITLE);
   const [articleType, setArticleType] = useState<ArticleType>("工作报告");
+  const [templates, setTemplates] = useState<FormatTemplate[]>(TEMPLATES);
   const [template, setTemplate] = useState("default");
   const [maxWords, setMaxWords] = useState(3000);
   const [summary, setSummary] = useState(DEFAULT_SUMMARY);
   const [outline, setOutline] = useState<OutlineNode[]>([]);
+  const [outlineText, setOutlineText] = useState("");
   const [otherReq, setOtherReq] = useState(DEFAULT_OTHER);
+  const [refMode, setRefMode] = useState<RefMode>("upload");
   const [files, setFiles] = useState<string[]>([]);
+  const [kbDocs, setKbDocs] = useState<string[]>([]);
   const [kb, setKb] = useState<string[]>(["kb1"]);
   const [stage, setStage] = useState<Stage>("empty");
 
@@ -482,7 +567,7 @@ function Workbench() {
   const [genSectionIdx, setGenSectionIdx] = useState(0);
   const [titleError, setTitleError] = useState(false);
 
-  const [activeCite, setActiveCite] = useState<Citation | null>(null);
+  const [activeCiteId, setActiveCiteId] = useState<string | null>(null);
   const [collapsedSidebar, setCollapsedSidebar] = useState(false);
 
   /* new: shared article + tabs + polish + review */
@@ -520,12 +605,17 @@ function Workbench() {
     if (!data) return;
     if (data.title !== undefined) setTitle(data.title);
     if (data.articleType) setArticleType(data.articleType);
+    if (data.templates?.length) setTemplates(data.templates);
     if (data.template) setTemplate(data.template);
     if (data.maxWords) setMaxWords(data.maxWords);
     if (data.summary !== undefined) setSummary(data.summary);
     if (data.outline) setOutline(data.outline);
+    if (data.outlineText !== undefined) setOutlineText(data.outlineText);
+    else if (data.outline?.length) setOutlineText(outlineToText(data.outline));
     if (data.otherReq !== undefined) setOtherReq(data.otherReq);
+    if (data.refMode) setRefMode(data.refMode);
     if (data.files) setFiles(data.files);
+    if (data.kbDocs) setKbDocs(data.kbDocs);
     if (data.kb) setKb(data.kb);
     if (data.stage) setStage(data.stage);
     if (data.rightTab) setRightTab(data.rightTab);
@@ -556,10 +646,18 @@ function Workbench() {
     setLoadingOutline(true);
     setStage("outline");
     await delay(1200);
-    setOutline(JSON.parse(JSON.stringify(MOCK_OUTLINE)));
+    const tree = JSON.parse(JSON.stringify(MOCK_OUTLINE)) as OutlineNode[];
+    setOutline(tree);
+    setOutlineText(outlineToText(tree));
     setLoadingOutline(false);
     toast.success("文章大纲已生成");
   };
+
+  const handleOutlineTextChange = (text: string) => {
+    setOutlineText(text);
+    setOutline(textToOutline(text));
+  };
+
 
   const handleGenArticle = async () => {
     if (!title.trim()) {
@@ -591,12 +689,16 @@ function Workbench() {
     const payload: Persisted = {
       title,
       articleType,
+      templates,
       template,
       maxWords,
       summary,
       outline,
+      outlineText,
       otherReq,
+      refMode,
       files,
+      kbDocs,
       kb,
       stage,
       rightTab,
@@ -648,9 +750,20 @@ function Workbench() {
   };
 
   const openCitation = (id: string) => {
-    const c = CITATIONS.find((x) => x.id === id);
-    if (c) setActiveCite(c);
+    setActiveCiteId(id);
   };
+
+  const handlePickKbDoc = () => {
+    const pool = [
+      "集团数字化转型总体规划.pdf",
+      "知识库运营管理办法.docx",
+      "2026 年信息化预算说明.xlsx",
+    ];
+    const name = pool[kbDocs.length % pool.length];
+    setKbDocs((arr) => [...arr, name]);
+    toast.success(`已选择 ${name}`);
+  };
+
 
   const totalSections = useMemo(() => flattenOutline(outline).length, [outline]);
 
@@ -902,6 +1015,7 @@ function Workbench() {
   /* ============================== render ============================== */
 
   return (
+    <TooltipProvider delayDuration={150}>
     <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground">
       {/* ============ TOP BAR ============ */}
       <header
@@ -1063,11 +1177,15 @@ function Workbench() {
                 articleRef={articleRef}
                 sections={sections}
                 citations={CITATIONS}
+                docs={SOURCE_DOCS}
+                activeCiteId={activeCiteId}
                 onScrollTo={scrollToSection}
                 onOpenCitation={openCitation}
+                onCloseCitation={() => setActiveCiteId(null)}
                 highlights={highlights}
                 onSelectionMouseUp={captureSelection}
               />
+
             ) : (
               <div className="flex flex-1 flex-col overflow-y-auto p-6 scrollbar-thin">
                 <div className="mx-auto w-full max-w-[860px]">
@@ -1134,6 +1252,8 @@ function Workbench() {
             <WritePanel
               articleType={articleType}
               setArticleType={setArticleType}
+              templates={templates}
+              setTemplates={setTemplates}
               template={template}
               setTemplate={setTemplate}
               title={title}
@@ -1146,12 +1266,18 @@ function Workbench() {
               setSummary={setSummary}
               handleGenSummary={handleGenSummary}
               loadingSummary={loadingSummary}
-              outline={outline}
+              outlineText={outlineText}
+              setOutlineText={handleOutlineTextChange}
               hasOutline={hasOutline}
               handleGenOutline={handleGenOutline}
               loadingOutline={loadingOutline}
+              refMode={refMode}
+              setRefMode={setRefMode}
               files={files}
               setFiles={setFiles}
+              kbDocs={kbDocs}
+              setKbDocs={setKbDocs}
+              onPickKbDoc={handlePickKbDoc}
               kb={kb}
               toggleKb={toggleKb}
               handleUpload={handleUpload}
@@ -1161,6 +1287,7 @@ function Workbench() {
               generating={stage === "generating"}
             />
           )}
+
 
           {rightTab === "polish" && (
             <PolishPanel
@@ -1202,49 +1329,8 @@ function Workbench() {
         </aside>
       </div>
 
-      {/* ============ CITATION DRAWER ============ */}
-      <Sheet open={!!activeCite} onOpenChange={(o) => !o && setActiveCite(null)}>
-        <SheetContent side="right" className="w-[420px] sm:max-w-none">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2 text-[15px]">
-              <Quote className="h-4 w-4 text-primary" />
-              引用来源 [{activeCite?.id}]
-            </SheetTitle>
-          </SheetHeader>
-          {activeCite && (
-            <div className="mt-6 space-y-5 px-1">
-              <div className="rounded-lg border bg-muted/40 p-4">
-                <div className="flex items-start gap-2">
-                  <FileCheck2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <div className="min-w-0">
-                    <div className="truncate text-[13.5px] font-medium text-foreground">
-                      {activeCite.source}
-                    </div>
-                    <div className="mt-0.5 text-[12px] text-muted-foreground">
-                      {activeCite.section}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div className="mb-2 text-[12px] font-medium text-muted-foreground">
-                  引用片段
-                </div>
-                <blockquote className="rounded-md border-l-2 border-primary bg-primary-soft/40 px-4 py-3 text-[13.5px] leading-relaxed text-foreground">
-                  {activeCite.snippet}
-                </blockquote>
-              </div>
-              <Button
-                variant="outline"
-                className="w-full gap-1.5"
-                onClick={() => toast.success("已在来源文件中定位")}
-              >
-                <MapPin className="h-4 w-4" /> 定位原文
-              </Button>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* citation preview is rendered inline in ArticleView */}
+
 
       {/* ============ CONFIRM DIALOG ============ */}
       <AlertDialog
@@ -1282,6 +1368,7 @@ function Workbench() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </TooltipProvider>
   );
 }
 
@@ -1290,6 +1377,8 @@ function Workbench() {
 function WritePanel(props: {
   articleType: ArticleType;
   setArticleType: (v: ArticleType) => void;
+  templates: FormatTemplate[];
+  setTemplates: React.Dispatch<React.SetStateAction<FormatTemplate[]>>;
   template: string;
   setTemplate: (v: string) => void;
   title: string;
@@ -1302,12 +1391,18 @@ function WritePanel(props: {
   setSummary: (v: string) => void;
   handleGenSummary: () => void;
   loadingSummary: boolean;
-  outline: OutlineNode[];
+  outlineText: string;
+  setOutlineText: (v: string) => void;
   hasOutline: boolean;
   handleGenOutline: () => void;
   loadingOutline: boolean;
+  refMode: RefMode;
+  setRefMode: (v: RefMode) => void;
   files: string[];
   setFiles: React.Dispatch<React.SetStateAction<string[]>>;
+  kbDocs: string[];
+  onPickKbDoc: () => void;
+  setKbDocs: React.Dispatch<React.SetStateAction<string[]>>;
   kb: string[];
   toggleKb: (id: string) => void;
   handleUpload: () => void;
@@ -1338,25 +1433,98 @@ function WritePanel(props: {
           ))}
         </div>
 
+        {/* ---- 格式模板 ---- */}
         <div className="mt-5 flex items-center justify-between">
           <FieldLabel required>格式模板</FieldLabel>
-          <button className="flex items-center gap-1 text-[12.5px] text-primary hover:underline">
+          <button
+            onClick={() => {
+              const idx =
+                p.templates.filter((t) => t.custom).length + 1;
+              const nt: FormatTemplate = {
+                value: `custom-${Date.now()}`,
+                label: `自定义格式 ${idx}`,
+                custom: true,
+              };
+              p.setTemplates((arr) => [...arr, nt]);
+              p.setTemplate(nt.value);
+              toast.success("已新增自定义格式");
+            }}
+            className="flex items-center gap-1 text-[12.5px] text-primary hover:underline"
+          >
             <Plus className="h-3.5 w-3.5" /> 自定义
           </button>
         </div>
-        <div className="mt-2">
-          <Select value={p.template} onValueChange={p.setTemplate}>
-            <SelectTrigger className="h-9 text-[13px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {TEMPLATES.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="mt-2 divide-y rounded-md border border-border">
+          {p.templates.map((t) => {
+            const checked = p.template === t.value;
+            return (
+              <div
+                key={t.value}
+                onClick={() => p.setTemplate(t.value)}
+                className={cn(
+                  "group flex cursor-pointer items-center gap-2 px-3 py-2 text-[13px] transition",
+                  checked ? "bg-primary-soft/60 text-primary" : "hover:bg-muted",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border",
+                    checked ? "border-primary" : "border-border",
+                  )}
+                >
+                  {checked && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  )}
+                </span>
+                <span className="flex-1 truncate">{t.label}</span>
+                {t.custom && (
+                  <span className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toast.success(`预览「${t.label}」`);
+                      }}
+                      className="rounded p-1 text-muted-foreground hover:text-primary"
+                      title="预览"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const name = window.prompt("重命名格式", t.label);
+                        if (name?.trim())
+                          p.setTemplates((arr) =>
+                            arr.map((x) =>
+                              x.value === t.value
+                                ? { ...x, label: name.trim() }
+                                : x,
+                            ),
+                          );
+                      }}
+                      className="rounded p-1 text-muted-foreground hover:text-primary"
+                      title="编辑"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        p.setTemplates((arr) =>
+                          arr.filter((x) => x.value !== t.value),
+                        );
+                        if (checked) p.setTemplate("default");
+                      }}
+                      className="rounded p-1 text-muted-foreground hover:text-destructive"
+                      title="删除"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <FieldLabel required className="mt-5">
@@ -1410,6 +1578,7 @@ function WritePanel(props: {
           />
         </div>
 
+        {/* ---- 内容概要 ---- */}
         <div className="mt-5 flex items-center justify-between">
           <FieldLabel required>内容概要</FieldLabel>
           <button
@@ -1428,7 +1597,7 @@ function WritePanel(props: {
         <Textarea
           value={p.summary}
           onChange={(e) => p.setSummary(e.target.value.slice(0, 500))}
-          placeholder="手动输入"
+          placeholder="手动输入内容概要，或点击「AI 生成」"
           rows={4}
           className="mt-2 resize-none text-[13px]"
         />
@@ -1436,6 +1605,7 @@ function WritePanel(props: {
           {p.summary.length}/500
         </div>
 
+        {/* ---- 文章大纲 ---- */}
         <div className="mt-3 flex items-center justify-between">
           <FieldLabel>文章大纲</FieldLabel>
           <button
@@ -1451,72 +1621,19 @@ function WritePanel(props: {
             AI 生成
           </button>
         </div>
-        <div className="mt-2 rounded-md border border-dashed border-border bg-muted/40 px-3 py-2.5 text-[12.5px] text-muted-foreground">
-          {p.hasOutline
-            ? `已生成 ${p.outline.length} 个章节，可在左侧编辑`
-            : "点击「AI 生成」或在左侧手动输入大纲"}
+        <Textarea
+          value={p.outlineText}
+          onChange={(e) => p.setOutlineText(e.target.value)}
+          placeholder={"手动输入大纲，每行一节，子节以空格或缩进开头，例如：\n一、总体情况\n  1.1 建设背景"}
+          rows={6}
+          className="mt-2 resize-none text-[13px] leading-relaxed"
+        />
+        <div className="mt-1 text-[11.5px] text-muted-foreground">
+          {p.hasOutline ? "大纲已同步至左侧，可在左侧继续编辑" : "支持手动输入或 AI 生成"}
         </div>
 
-        <FieldLabel className="mt-5">内容参考</FieldLabel>
-        <div className="mt-2 space-y-2">
-          <button
-            onClick={p.handleUpload}
-            className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-border py-2 text-[13px] text-muted-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
-          >
-            <Upload className="h-3.5 w-3.5" /> 上传文件
-          </button>
-          {p.files.length > 0 && (
-            <div className="space-y-1">
-              {p.files.map((f, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
-                >
-                  <FileText className="h-3.5 w-3.5 text-primary" />
-                  <span className="flex-1 truncate">{f}</span>
-                  <button
-                    onClick={() =>
-                      p.setFiles((arr) => arr.filter((_, idx) => idx !== i))
-                    }
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="rounded-md border border-border p-2">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[12px] text-muted-foreground">
-              <Database className="h-3 w-3" /> 选择知识库
-            </div>
-            <div className="space-y-1">
-              {KB_OPTIONS.map((o) => {
-                const checked = p.kb.includes(o.id);
-                return (
-                  <label
-                    key={o.id}
-                    className={cn(
-                      "flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] transition",
-                      checked ? "bg-primary-soft text-primary" : "hover:bg-muted",
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      className="accent-[var(--color-primary)]"
-                      checked={checked}
-                      onChange={() => p.toggleKb(o.id)}
-                    />
-                    <span className="flex-1">{o.name}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <FieldLabel className="mt-5">其他要求</FieldLabel>
+        {/* ---- 其他提示说明 ---- */}
+        <FieldLabel className="mt-5">其他提示说明</FieldLabel>
         <Textarea
           value={p.otherReq}
           onChange={(e) => p.setOtherReq(e.target.value.slice(0, 200))}
@@ -1524,9 +1641,158 @@ function WritePanel(props: {
           rows={3}
           className="mt-2 resize-none text-[13px]"
         />
-        <div className="mt-1 mb-2 text-right text-[11.5px] text-muted-foreground">
+        <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
           {p.otherReq.length}/200
         </div>
+
+        {/* ---- 内容参考 ---- */}
+        <FieldLabel className="mt-5">
+          <span className="flex items-center gap-1">
+            内容参考
+            <Info className="h-3 w-3 text-muted-foreground" />
+          </span>
+        </FieldLabel>
+        <div className="mt-2 flex items-center gap-5">
+          {(
+            [
+              { v: "upload", label: "上传文件" },
+              { v: "kb", label: "从知识库选择文档" },
+            ] as { v: RefMode; label: string }[]
+          ).map((o) => (
+            <label
+              key={o.v}
+              className="flex cursor-pointer items-center gap-1.5 text-[13px] text-foreground"
+            >
+              <span
+                className={cn(
+                  "flex h-3.5 w-3.5 items-center justify-center rounded-full border",
+                  p.refMode === o.v ? "border-primary" : "border-border",
+                )}
+                onClick={() => p.setRefMode(o.v)}
+              >
+                {p.refMode === o.v && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                )}
+              </span>
+              <span onClick={() => p.setRefMode(o.v)}>{o.label}</span>
+            </label>
+          ))}
+        </div>
+
+        {p.refMode === "upload" ? (
+          <div className="mt-2 space-y-2">
+            <button
+              onClick={p.handleUpload}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+            >
+              <Upload className="h-3.5 w-3.5" /> 上传文件
+            </button>
+            {p.files.map((f, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+              >
+                <FileText className="h-3.5 w-3.5 text-primary" />
+                <span className="flex-1 truncate">{f}</span>
+                <button
+                  onClick={() =>
+                    p.setFiles((arr) => arr.filter((_, idx) => idx !== i))
+                  }
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-2 space-y-2">
+            <button
+              onClick={p.onPickKbDoc}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+            >
+              <Plus className="h-3.5 w-3.5" /> 选择文档
+            </button>
+            {p.kbDocs.map((f, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+              >
+                <FileText className="h-3.5 w-3.5 text-primary" />
+                <span className="flex-1 truncate">{f}</span>
+                <button
+                  onClick={() =>
+                    p.setKbDocs((arr) => arr.filter((_, idx) => idx !== i))
+                  }
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ---- 引用知识库 ---- */}
+        <FieldLabel className="mt-5">
+          <span className="flex items-center gap-1">
+            引用知识库
+            <Info className="h-3 w-3 text-muted-foreground" />
+          </span>
+        </FieldLabel>
+        <div className="mt-2 space-y-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary">
+                <Plus className="h-3.5 w-3.5" /> 添加知识库
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-[280px] p-2">
+              <div className="space-y-1">
+                {KB_OPTIONS.map((o) => {
+                  const checked = p.kb.includes(o.id);
+                  return (
+                    <label
+                      key={o.id}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] transition",
+                        checked ? "bg-primary-soft text-primary" : "hover:bg-muted",
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        className="accent-[var(--color-primary)]"
+                        checked={checked}
+                        onChange={() => p.toggleKb(o.id)}
+                      />
+                      <span className="flex-1">{o.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+          {p.kb.map((id) => {
+            const o = KB_OPTIONS.find((x) => x.id === id);
+            if (!o) return null;
+            return (
+              <div
+                key={id}
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+              >
+                <Database className="h-3.5 w-3.5 text-primary" />
+                <span className="flex-1 truncate">{o.name}</span>
+                <button
+                  onClick={() => p.toggleKb(id)}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        <div className="h-2" />
       </div>
 
       <div className="border-t bg-panel p-3">
@@ -1582,145 +1848,119 @@ function PolishPanel(props: {
     onClear,
   } = props;
 
+  const canRun = !!selection && (!!mode || !!custom.trim()) && !loading;
+
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-thin">
-        <div className="flex items-center gap-2 text-[13px] font-medium text-foreground">
-          <MessageSquareQuote className="h-4 w-4 text-primary" />
-          所选内容
+      <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-thin">
+        <div className="text-[14px] font-semibold text-foreground">改写润色</div>
+        <div className="mt-3 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2.5 text-[12.5px] leading-relaxed text-[#1D4ED8]">
+          请选中左侧正文的文本内容，并选择下方的操作或手动输入要求。
         </div>
-        {selection ? (
-          <div className="mt-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-3 py-2.5 text-[13px] leading-relaxed text-[#78350F]">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                「{selection.text}」
-                <div className="mt-1 text-[11.5px] text-[#92400E]/80">
-                  共 {selection.text.length} 字
-                </div>
-              </div>
-              <button
-                onClick={onClear}
-                className="rounded p-0.5 text-[#92400E] hover:bg-[#FDE68A]"
-                title="取消选择"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="mt-2 rounded-md border border-dashed border-border bg-muted/40 px-3 py-4 text-center text-[12.5px] text-muted-foreground">
-            请在左侧正文中<span className="text-primary">选中文字</span>后开始润色
+
+        {selection && (
+          <div className="mt-3 flex items-start gap-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-2.5 py-2 text-[12.5px] leading-relaxed text-[#78350F]">
+            <span className="line-clamp-3 flex-1">「{selection.text}」</span>
+            <button
+              onClick={onClear}
+              className="shrink-0 rounded p-0.5 text-[#92400E] hover:bg-[#FDE68A]"
+              title="取消选择"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           </div>
         )}
 
-        <FieldLabel className="mt-5">润色方式</FieldLabel>
-        <ToggleGroup
-          type="single"
-          value={mode ?? ""}
-          onValueChange={(v) => setMode((v || null) as PolishMode | null)}
-          className="mt-2 grid grid-cols-4 gap-2"
-        >
-          {(["expand", "condense", "continue", "summarize"] as PolishMode[]).map(
-            (m) => (
-              <ToggleGroupItem
-                key={m}
-                value={m}
-                aria-label={POLISH_MODE_LABEL[m]}
-                className={cn(
-                  "h-9 rounded-md border border-border bg-panel text-[13px] text-foreground transition",
-                  "hover:border-primary/40 hover:bg-muted",
-                  "data-[state=on]:border-[#0F766E] data-[state=on]:bg-[#CCFBF1] data-[state=on]:text-[#0F766E] data-[state=on]:font-medium",
-                )}
-              >
-                {POLISH_MODE_LABEL[m]}
-              </ToggleGroupItem>
-            ),
-          )}
-        </ToggleGroup>
+        {loading && (
+          <div className="mt-3 rounded-md border border-border bg-muted/40 p-3">
+            <div className="flex items-center gap-2 text-[13px] text-primary">
+              <Loader2 className="h-4 w-4 animate-spin" /> AI 正在润色中…
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
+              <div className="h-3.5 w-11/12 animate-pulse rounded bg-muted" />
+              <div className="h-3.5 w-2/3 animate-pulse rounded bg-muted" />
+            </div>
+          </div>
+        )}
 
-        <FieldLabel className="mt-5">自定义要求</FieldLabel>
-        <Textarea
-          value={custom}
-          onChange={(e) => setCustom(e.target.value.slice(0, 200))}
-          placeholder="告诉 AI 你希望如何修改，例如：语言更加正式，突出工作成效。"
-          rows={4}
-          className="mt-2 resize-none text-[13px]"
-        />
-        <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
-          {custom.length}/200
-        </div>
-
-        {(loading || result) && (
-          <div className="mt-5">
+        {!loading && result && (
+          <div className="mt-3">
             <div className="flex items-center justify-between">
               <FieldLabel>润色结果</FieldLabel>
-              {!loading && result && (
-                <button
-                  onClick={onRun}
-                  className="flex items-center gap-1 text-[12.5px] text-primary hover:underline"
-                >
-                  <RefreshCw className="h-3 w-3" /> 重新生成
-                </button>
-              )}
+              <button
+                onClick={onRun}
+                className="flex items-center gap-1 text-[12.5px] text-primary hover:underline"
+              >
+                <RefreshCw className="h-3 w-3" /> 重新生成
+              </button>
             </div>
-            {loading ? (
-              <div className="mt-2 rounded-md border border-border bg-muted/40 p-4">
-                <div className="flex items-center gap-2 text-[13px] text-primary">
-                  <Loader2 className="h-4 w-4 animate-spin" /> AI 正在润色中…
-                </div>
-                <div className="mt-3 space-y-2">
-                  <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
-                  <div className="h-3.5 w-11/12 animate-pulse rounded bg-muted" />
-                  <div className="h-3.5 w-2/3 animate-pulse rounded bg-muted" />
-                </div>
-              </div>
-            ) : (
-              <Textarea
-                value={result}
-                onChange={(e) => setResult(e.target.value)}
-                rows={6}
-                className="mt-2 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
-              />
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="border-t bg-panel p-3">
-        {!result ? (
-          <Button
-            onClick={onRun}
-            disabled={loading || !selection}
-            className="h-10 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#115E59] disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> 润色中…
-              </>
-            ) : (
-              <>
-                <Wand2 className="mr-1.5 h-4 w-4" /> 开始润色
-              </>
-            )}
-          </Button>
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              onClick={onRun}
-              disabled={loading}
-              className="h-10 border-border text-[13.5px]"
-            >
-              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> 重新生成
-            </Button>
+            <Textarea
+              value={result}
+              onChange={(e) => setResult(e.target.value)}
+              rows={6}
+              className="mt-2 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
+            />
             <Button
               onClick={onReplace}
-              className="h-10 bg-primary text-[13.5px] font-medium text-white hover:bg-[#115E59]"
+              className="mt-2 h-9 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#115E59]"
             >
               <Check className="mr-1.5 h-3.5 w-3.5" /> 替换原文
             </Button>
           </div>
         )}
+      </div>
+
+      <div className="shrink-0 border-t bg-panel px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          {(["expand", "condense", "continue", "summarize"] as PolishMode[]).map(
+            (m) => {
+              const on = mode === m;
+              return (
+                <button
+                  key={m}
+                  onClick={() => setMode(on ? null : m)}
+                  className={cn(
+                    "h-8 flex-1 rounded-md border text-[12.5px] transition",
+                    on
+                      ? "border-primary bg-primary font-medium text-white"
+                      : "border-border bg-panel text-foreground hover:border-primary/40 hover:bg-muted",
+                  )}
+                >
+                  {POLISH_MODE_LABEL[m]}
+                </button>
+              );
+            },
+          )}
+        </div>
+        <div className="mt-2 flex items-center gap-2">
+          <Input
+            value={custom}
+            onChange={(e) => setCustom(e.target.value.slice(0, 200))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && canRun) onRun();
+            }}
+            placeholder="告诉 AI 你想怎么修改"
+            className="h-9 flex-1 rounded-full px-3.5 text-[13px]"
+          />
+          <button
+            onClick={onRun}
+            disabled={!canRun}
+            title="开始润色"
+            className={cn(
+              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
+              canRun
+                ? "bg-primary text-white hover:bg-[#115E59]"
+                : "cursor-not-allowed bg-muted text-muted-foreground",
+            )}
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
     </>
   );
@@ -2419,12 +2659,149 @@ function renderParaWithHighlights(text: string, hits: Highlight[]) {
   return nodes;
 }
 
+function truncateDocName(name: string, max = 10) {
+  const dot = name.lastIndexOf(".");
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  return base.length > max ? `${base.slice(0, max)}…` : base;
+}
+
+function CiteTag({
+  citation,
+  doc,
+  active,
+  onClick,
+}: {
+  citation: Citation;
+  doc: SourceDoc | undefined;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const label = doc ? truncateDocName(doc.name) : "引用";
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          onClick={onClick}
+          className={cn(
+            "mx-1 inline-flex max-w-[170px] translate-y-[-1px] items-center gap-1 rounded border px-1.5 py-[1px] align-middle text-[12px] leading-[18px] transition",
+            active
+              ? "border-[#1D4ED8] bg-[#DBEAFE] text-[#1D4ED8]"
+              : "border-[#BFDBFE] bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE]",
+          )}
+        >
+          <FileText className="h-3 w-3 shrink-0" />
+          <span className="truncate">{label}</span>
+          <span className="opacity-70">[{citation.id}]</span>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        className="max-w-[320px] border-0 bg-[#111827] text-white"
+      >
+        <div className="text-[12px] font-medium leading-relaxed">
+          {doc?.name}
+        </div>
+        <div className="mt-0.5 text-[11.5px] text-white/70">
+          第 {citation.page} 页 · {citation.section} · 引用 [{citation.id}]
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function DocPreviewPanel({
+  citation,
+  doc,
+  onClose,
+}: {
+  citation: Citation;
+  doc: SourceDoc;
+  onClose: () => void;
+}) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = document.getElementById(
+      `slice-${doc.id}-${citation.page}-${citation.sliceIdx}`,
+    );
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [citation.id, citation.page, citation.sliceIdx, doc.id]);
+
+  return (
+    <div className="flex w-[380px] shrink-0 flex-col border-l bg-panel">
+      <div className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
+        <FileCheck2 className="h-4 w-4 shrink-0 text-primary" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[13px] font-medium text-foreground">
+            {doc.name}
+          </div>
+          <div className="text-[11.5px] text-muted-foreground">
+            第 {citation.page} 页 · 引用 [{citation.id}]
+          </div>
+        </div>
+        <button
+          onClick={() => toast.success("已开始下载源文档")}
+          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-primary"
+          title="下载"
+        >
+          <Download className="h-4 w-4" />
+        </button>
+        <button
+          onClick={onClose}
+          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          title="关闭"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div
+        ref={bodyRef}
+        className="flex-1 overflow-y-auto bg-muted/40 px-3 py-3 scrollbar-thin"
+      >
+        {doc.pages.map((pg) => (
+          <div
+            key={pg.page}
+            className="mb-3 rounded-md border bg-panel px-4 py-4 shadow-sm"
+          >
+            <div className="mb-2 text-[11.5px] text-muted-foreground">
+              第 {pg.page} 页
+            </div>
+            <div className="space-y-2.5 text-[12.5px] leading-[1.9] text-foreground">
+              {pg.paras.map((t, i) => {
+                const hit =
+                  pg.page === citation.page && i === citation.sliceIdx;
+                return (
+                  <p
+                    key={i}
+                    id={`slice-${doc.id}-${pg.page}-${i}`}
+                    className={cn(
+                      "rounded px-1 py-0.5 transition",
+                      hit &&
+                        "bg-[#FEF3C7] outline outline-1 outline-[#F5D67C]",
+                    )}
+                  >
+                    {t}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ArticleView({
   title,
   sections,
   citations,
+  docs,
+  activeCiteId,
   onScrollTo,
   onOpenCitation,
+  onCloseCitation,
   articleRef,
   highlights,
   onSelectionMouseUp,
@@ -2432,17 +2809,26 @@ function ArticleView({
   title: string;
   sections: Section[];
   citations: Citation[];
+  docs: SourceDoc[];
+  activeCiteId: string | null;
   onScrollTo: (id: string) => void;
   onOpenCitation: (id: string) => void;
+  onCloseCitation: () => void;
   articleRef: React.RefObject<HTMLDivElement | null>;
   highlights: Highlight[];
   onSelectionMouseUp: () => void;
 }) {
   const topSections = sections.filter((s) => s.level === 1);
+  const activeCite = citations.find((c) => c.id === activeCiteId) ?? null;
+  const activeDoc = activeCite
+    ? docs.find((d) => d.id === activeCite.docId)
+    : undefined;
 
   return (
     <div className="flex flex-1 overflow-hidden">
-      <div className="w-[220px] shrink-0 overflow-y-auto border-r bg-panel/60 px-4 py-5 scrollbar-thin">
+      <div
+        className={`w-[220px] shrink-0 overflow-y-auto border-r bg-panel/60 px-4 py-5 scrollbar-thin ${activeCite ? "hidden" : ""}`}
+      >
         <div className="mb-3 text-[12px] font-medium text-muted-foreground">
           目录导航
         </div>
@@ -2471,7 +2857,7 @@ function ArticleView({
       >
         <div className="mx-auto max-w-[780px] px-10 py-10">
           <h1 className="text-[26px] font-bold leading-tight text-foreground">
-            {title}
+            {title || "未命名文章"}
           </h1>
           <div className="mt-3 flex items-center gap-3 text-[12.5px] text-muted-foreground">
             <span>AI 生成</span>
@@ -2498,14 +2884,19 @@ function ArticleView({
                       data-para-text={p.text}
                     >
                       {renderParaWithHighlights(p.text, hits)}
-                      {p.cite && (
-                        <sup
-                          onClick={() => onOpenCitation(p.cite!)}
-                          title="查看引用来源"
-                        >
-                          [{p.cite}]
-                        </sup>
-                      )}
+                      {(p.cites ?? []).map((cid) => {
+                        const c = citations.find((x) => x.id === cid);
+                        if (!c) return null;
+                        return (
+                          <CiteTag
+                            key={cid}
+                            citation={c}
+                            doc={docs.find((d) => d.id === c.docId)}
+                            active={activeCiteId === cid}
+                            onClick={() => onOpenCitation(cid)}
+                          />
+                        );
+                      })}
                     </p>
                   );
                 })}
@@ -2514,23 +2905,43 @@ function ArticleView({
 
             <Separator className="my-8" />
             <div className="text-[13px] font-medium text-foreground">引用来源</div>
-            <ol className="mt-2 space-y-1.5 text-[12.5px] text-muted-foreground">
-              {citations.map((c) => (
-                <li key={c.id}>
-                  [{c.id}]{" "}
-                  <button
-                    className="text-primary hover:underline"
-                    onClick={() => onOpenCitation(c.id)}
-                  >
-                    {c.source}
-                  </button>{" "}
-                  · {c.section}
-                </li>
-              ))}
+            <ol className="mt-2 space-y-1.5">
+              {citations.map((c) => {
+                const d = docs.find((x) => x.id === c.docId);
+                const active = activeCiteId === c.id;
+                return (
+                  <li key={c.id}>
+                    <button
+                      onClick={() => onOpenCitation(c.id)}
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-[12.5px] transition",
+                        active
+                          ? "border-[#1D4ED8] bg-[#EFF6FF] text-[#1D4ED8]"
+                          : "border-border text-muted-foreground hover:border-primary/40 hover:bg-muted",
+                      )}
+                    >
+                      <span className="shrink-0 font-medium">[{c.id}]</span>
+                      <FileText className="h-3.5 w-3.5 shrink-0" />
+                      <span className="flex-1 truncate">{d?.name}</span>
+                      <span className="shrink-0 text-[11.5px] opacity-80">
+                        第 {c.page} 页 · {c.section}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ol>
           </article>
         </div>
       </div>
+
+      {activeCite && activeDoc && (
+        <DocPreviewPanel
+          citation={activeCite}
+          doc={activeDoc}
+          onClose={onCloseCitation}
+        />
+      )}
     </div>
   );
 }
@@ -2604,14 +3015,18 @@ function buildExportHtml(title: string, sections: Section[], citations: Citation
       const tag = s.level === 1 ? "h1" : "h2";
       const ps = s.paragraphs
         .map(
-          (p) => `<p>${p.text}${p.cite ? `<sup>[${p.cite}]</sup>` : ""}</p>`,
+          (p) =>
+            `<p>${p.text}${(p.cites ?? []).map((c) => `<sup>[${c}]</sup>`).join("")}</p>`,
         )
         .join("");
       return `<${tag}>${s.title}</${tag}>${ps}`;
     })
     .join("");
   const refs = citations
-    .map((c) => `<li>[${c.id}] ${c.source} · ${c.section}</li>`)
+    .map(
+      (c) =>
+        `<li>[${c.id}] ${SOURCE_DOCS.find((d) => d.id === c.docId)?.name ?? ""} · 第 ${c.page} 页 · ${c.section}</li>`,
+    )
     .join("");
   return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:780px;margin:40px auto;padding:0 24px;color:#1F2937;line-height:1.9}h1{font-size:24px}h2{font-size:18px;margin-top:20px}sup{color:#0F766E;font-weight:600;margin:0 2px}ol{color:#4b5563;font-size:13px}</style></head><body><h1 style="font-size:26px;text-align:center">${title}</h1>${body}<hr/><h3>引用来源</h3><ol>${refs}</ol></body></html>`;
 }
