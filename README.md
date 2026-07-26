@@ -4,6 +4,8 @@
 
 面向政务与企业场景的结构化 AI 长文写作工作台
 
+**[🌐 在线体验：ai-writer-studio-lake.vercel.app](https://ai-writer-studio-lake.vercel.app/)**
+
 [![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![TanStack Start](https://img.shields.io/badge/TanStack-Start-FF4154?logo=reactquery&logoColor=white)](https://tanstack.com/start)
