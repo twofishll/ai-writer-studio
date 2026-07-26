@@ -1054,7 +1054,7 @@ function Workbench() {
         <div
           className={cn(
             "flex h-full items-center gap-2 border-r px-4 transition-all",
-            collapsedSidebar ? "w-14" : "w-[184px]",
+            collapsedSidebar ? "w-14" : "w-[200px]",
           )}
           style={{ borderColor: "var(--color-topbar-border)" }}
         >
@@ -1130,7 +1130,7 @@ function Workbench() {
         <aside
           className={cn(
             "flex shrink-0 flex-col overflow-y-auto transition-all scrollbar-thin",
-            collapsedSidebar ? "w-14" : "w-[184px]",
+            collapsedSidebar ? "w-14" : "w-[200px]",
           )}
           style={{
             background: "var(--color-sidebar)",
@@ -1245,9 +1245,9 @@ function Workbench() {
         </main>
 
         {/* ============ RIGHT PANEL ============ */}
-        <aside className="flex w-[296px] shrink-0 flex-col border-l bg-panel">
+        <aside className="flex w-[360px] shrink-0 flex-col border-l bg-panel">
           {/* tabs — fixed */}
-          <div className="flex h-11 shrink-0 items-center border-b">
+          <div className="flex h-10 shrink-0 items-center border-b">
             {(
               [
                 { key: "write", label: "AI 写作" },
@@ -1443,15 +1443,15 @@ function WritePanel(props: {
   const p = props;
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-5 py-3 scrollbar-thin">
         <FieldLabel required>文章类型</FieldLabel>
-        <div className="mt-2 grid grid-cols-4 gap-2">
+        <div className="mt-1.5 grid grid-cols-4 gap-2">
           {ARTICLE_TYPES.map((t) => (
             <button
               key={t}
               onClick={() => p.setArticleType(t)}
               className={cn(
-                "h-8 rounded-md border text-[12px] transition",
+                "h-7 rounded-md border text-[12px] transition",
                 p.articleType === t
                   ? "border-primary bg-primary-soft font-medium text-primary"
                   : "border-border text-foreground hover:border-primary/40 hover:bg-muted",
@@ -1464,7 +1464,7 @@ function WritePanel(props: {
 
         {p.articleType === CUSTOM_TYPE && (
           <>
-            <FieldLabel required className="mt-4">
+            <FieldLabel required className="mt-3">
               其它文章类型
             </FieldLabel>
             <Input
@@ -1472,7 +1472,7 @@ function WritePanel(props: {
               onChange={(e) => p.setCustomType(e.target.value.slice(0, 30))}
               placeholder="请输入文章类型，如：需求规格说明书"
               className={cn(
-                "mt-2 h-9 text-[13px]",
+                "mt-1.5 h-8 text-[13px]",
                 !p.customType.trim() &&
                   "border-destructive/60 focus-visible:ring-destructive/30",
               )}
@@ -1486,7 +1486,7 @@ function WritePanel(props: {
         )}
 
         {/* ---- 格式模板 ---- */}
-        <div className="mt-5 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
           <FieldLabel required>格式模板</FieldLabel>
           <button
             onClick={() => {
@@ -1506,7 +1506,7 @@ function WritePanel(props: {
             <Plus className="h-3.5 w-3.5" /> 自定义
           </button>
         </div>
-        <div className="mt-2 divide-y rounded-md border border-border">
+        <div className="mt-1.5 divide-y rounded-md border border-border">
           {p.templates.map((t) => {
             const checked = p.template === t.value;
             return (
@@ -1514,7 +1514,7 @@ function WritePanel(props: {
                 key={t.value}
                 onClick={() => p.setTemplate(t.value)}
                 className={cn(
-                  "group flex cursor-pointer items-center gap-2 px-3 py-2 text-[13px] transition",
+                  "group flex cursor-pointer items-center gap-2 px-3 py-1.5 text-[13px] transition",
                   checked ? "bg-primary-soft/60 text-primary" : "hover:bg-muted",
                 )}
               >
@@ -1579,7 +1579,7 @@ function WritePanel(props: {
           })}
         </div>
 
-        <FieldLabel required className="mt-5">
+        <FieldLabel required className="mt-4">
           文章标题
         </FieldLabel>
         <Input
@@ -1590,7 +1590,7 @@ function WritePanel(props: {
           }}
           placeholder="请输入文章标题"
           className={cn(
-            "mt-2 h-9 text-[13px]",
+            "mt-1.5 h-8 text-[13px]",
             p.titleError && "border-destructive focus-visible:ring-destructive/30",
           )}
           maxLength={50}
@@ -1599,13 +1599,13 @@ function WritePanel(props: {
           <div className="mt-1 text-[12px] text-destructive">标题为必填项</div>
         )}
 
-        <FieldLabel required className="mt-5">
+        <FieldLabel required className="mt-4">
           <span className="flex items-center gap-1">
             最大字数
             <InfoTip text="生成正文的目标字数上限，默认 2000 字，最大 10000 字。" />
           </span>
         </FieldLabel>
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-1.5 flex items-center gap-3">
           <Slider
             value={[p.maxWords]}
             min={1000}
@@ -1626,12 +1626,12 @@ function WritePanel(props: {
               );
               p.setMaxWords(v);
             }}
-            className="h-8 w-20 text-center text-[13px]"
+            className="h-7 w-20 text-center text-[13px]"
           />
         </div>
 
         {/* ---- 内容概要 ---- */}
-        <div className="mt-5 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
           <FieldLabel required>内容概要</FieldLabel>
           <button
             onClick={p.handleGenSummary}
@@ -1650,8 +1650,8 @@ function WritePanel(props: {
           value={p.summary}
           onChange={(e) => p.setSummary(e.target.value.slice(0, 500))}
           placeholder="手动输入内容概要，或点击「AI 生成」"
-          rows={4}
-          className="mt-2 resize-none text-[13px]"
+          rows={3}
+          className="mt-1.5 resize-none text-[13px]"
         />
         <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
           {p.summary.length}/500
@@ -1677,34 +1677,34 @@ function WritePanel(props: {
           value={p.outlineText}
           onChange={(e) => p.setOutlineText(e.target.value)}
           placeholder={"手动输入大纲，每行一节，子节以空格或缩进开头，例如：\n一、总体情况\n  1.1 建设背景"}
-          rows={6}
-          className="mt-2 resize-none text-[13px] leading-relaxed"
+          rows={4}
+          className="mt-1.5 resize-none text-[13px] leading-relaxed"
         />
         <div className="mt-1 text-[11.5px] text-muted-foreground">
           {p.hasOutline ? "大纲已同步至左侧，可在左侧继续编辑" : "支持手动输入或 AI 生成"}
         </div>
 
         {/* ---- 其他提示说明 ---- */}
-        <FieldLabel className="mt-5">其他提示说明</FieldLabel>
+        <FieldLabel className="mt-4">其他提示说明</FieldLabel>
         <Textarea
           value={p.otherReq}
           onChange={(e) => p.setOtherReq(e.target.value.slice(0, 200))}
           placeholder="如：语言风格、格式偏好等"
-          rows={3}
-          className="mt-2 resize-none text-[13px]"
+          rows={2}
+          className="mt-1.5 resize-none text-[13px]"
         />
         <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
           {p.otherReq.length}/200
         </div>
 
         {/* ---- 内容参考 ---- */}
-        <FieldLabel className="mt-5">
+        <FieldLabel className="mt-4">
           <span className="flex items-center gap-1">
             内容参考
             <InfoTip text="可上传本地文件或从知识库选择文档，AI 将参考其内容进行写作，并在正文中生成引用标注。" />
           </span>
         </FieldLabel>
-        <div className="mt-2 flex items-center gap-5">
+        <div className="mt-1.5 flex items-center gap-5">
           {(
             [
               { v: "upload", label: "上传文件" },
@@ -1732,17 +1732,17 @@ function WritePanel(props: {
         </div>
 
         {p.refMode === "upload" ? (
-          <div className="mt-2 space-y-2">
+          <div className="mt-1.5 space-y-1.5">
             <button
               onClick={p.handleUpload}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-1.5 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
             >
               <Upload className="h-3.5 w-3.5" /> 上传文件
             </button>
             {p.files.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 text-[12.5px]"
               >
                 <FileText className="h-3.5 w-3.5 text-primary" />
                 <span className="flex-1 truncate">{f}</span>
@@ -1758,17 +1758,17 @@ function WritePanel(props: {
             ))}
           </div>
         ) : (
-          <div className="mt-2 space-y-2">
+          <div className="mt-1.5 space-y-1.5">
             <button
               onClick={p.onPickKbDoc}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-1.5 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
             >
               <Plus className="h-3.5 w-3.5" /> 选择文档
             </button>
             {p.kbDocs.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 text-[12.5px]"
               >
                 <FileText className="h-3.5 w-3.5 text-primary" />
                 <span className="flex-1 truncate">{f}</span>
@@ -1786,16 +1786,16 @@ function WritePanel(props: {
         )}
 
         {/* ---- 引用知识库 ---- */}
-        <FieldLabel className="mt-5">
+        <FieldLabel className="mt-4">
           <span className="flex items-center gap-1">
             引用知识库
             <InfoTip text="选择需要检索的知识库范围，AI 会优先从所选知识库中检索相关资料作为写作依据。" />
           </span>
         </FieldLabel>
-        <div className="mt-2 space-y-2">
+        <div className="mt-1.5 space-y-1.5">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary">
+              <button className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-1.5 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary">
                 <Plus className="h-3.5 w-3.5" /> 添加知识库
               </button>
             </PopoverTrigger>
@@ -1807,7 +1807,7 @@ function WritePanel(props: {
                     <label
                       key={o.id}
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] transition",
+                        "flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-[13px] transition",
                         checked ? "bg-primary-soft text-primary" : "hover:bg-muted",
                       )}
                     >
@@ -1830,7 +1830,7 @@ function WritePanel(props: {
             return (
               <div
                 key={id}
-                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1 text-[12.5px]"
               >
                 <Database className="h-3.5 w-3.5 text-primary" />
                 <span className="flex-1 truncate">{o.name}</span>
@@ -1847,16 +1847,16 @@ function WritePanel(props: {
         <div className="h-2" />
       </div>
 
-      <div className="border-t bg-panel p-3">
+      <div className="border-t bg-panel p-2.5">
         {!p.hasOutline && (
-          <div className="mb-2 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
+          <div className="mb-1.5 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
             <Info className="h-3 w-3" /> 请先生成或填写文章大纲
           </div>
         )}
         <Button
           onClick={p.onGenArticle}
           disabled={!p.hasOutline || p.generating}
-          className="h-10 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#1D4ED8] disabled:opacity-50"
+          className="h-9 w-full bg-primary text-[14px] font-medium text-white hover:bg-[#1D4ED8] disabled:opacity-50"
         >
           {p.generating ? (
             <>
@@ -1904,14 +1904,14 @@ function PolishPanel(props: {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-5 py-3 scrollbar-thin">
         <div className="text-[14px] font-semibold text-foreground">改写润色</div>
-        <div className="mt-3 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2.5 text-[12.5px] leading-relaxed text-[#1D4ED8]">
+        <div className="mt-2 rounded-md border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2 text-[12.5px] leading-relaxed text-[#1D4ED8]">
           请选中左侧正文的文本内容，并选择下方的操作或手动输入要求。
         </div>
 
         {selection && (
-          <div className="mt-3 flex items-start gap-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-2.5 py-2 text-[12.5px] leading-relaxed text-[#78350F]">
+          <div className="mt-2 flex items-start gap-2 rounded-md border border-[#F5D67C] bg-[#FEF3C7] px-2.5 py-1.5 text-[12.5px] leading-relaxed text-[#78350F]">
             <span className="line-clamp-3 flex-1">「{selection.text}」</span>
             <button
               onClick={onClear}
@@ -1924,20 +1924,20 @@ function PolishPanel(props: {
         )}
 
         {loading && (
-          <div className="mt-3 rounded-md border border-border bg-muted/40 p-3">
+          <div className="mt-2 rounded-md border border-border bg-muted/40 p-2.5">
             <div className="flex items-center gap-2 text-[13px] text-primary">
               <Loader2 className="h-4 w-4 animate-spin" /> AI 正在润色中…
             </div>
-            <div className="mt-3 space-y-2">
-              <div className="h-3.5 w-full animate-pulse rounded bg-muted" />
-              <div className="h-3.5 w-11/12 animate-pulse rounded bg-muted" />
-              <div className="h-3.5 w-2/3 animate-pulse rounded bg-muted" />
+            <div className="mt-2 space-y-1.5">
+              <div className="h-3 w-full animate-pulse rounded bg-muted" />
+              <div className="h-3 w-11/12 animate-pulse rounded bg-muted" />
+              <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
             </div>
           </div>
         )}
 
         {!loading && result && (
-          <div className="mt-3">
+          <div className="mt-2">
             <div className="flex items-center justify-between">
               <FieldLabel>润色结果</FieldLabel>
               <button
@@ -1950,12 +1950,12 @@ function PolishPanel(props: {
             <Textarea
               value={result}
               onChange={(e) => setResult(e.target.value)}
-              rows={6}
-              className="mt-2 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
+              rows={5}
+              className="mt-1.5 resize-none border-primary/30 bg-primary-soft/40 text-[13px] leading-relaxed text-foreground"
             />
             <Button
               onClick={onReplace}
-              className="mt-2 h-9 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#1D4ED8]"
+              className="mt-1.5 h-8 w-full bg-primary text-[13.5px] font-medium text-white hover:bg-[#1D4ED8]"
             >
               <Check className="mr-1.5 h-3.5 w-3.5" /> 替换原文
             </Button>
@@ -1963,7 +1963,7 @@ function PolishPanel(props: {
         )}
       </div>
 
-      <div className="shrink-0 border-t bg-panel px-3 py-2.5">
+      <div className="shrink-0 border-t bg-panel px-3 py-2">
         <div className="flex items-center gap-2">
           {(["expand", "condense", "continue", "summarize"] as PolishMode[]).map(
             (m) => {
@@ -1973,7 +1973,7 @@ function PolishPanel(props: {
                   key={m}
                   onClick={() => setMode(on ? null : m)}
                   className={cn(
-                    "h-8 flex-1 rounded-md border text-[12.5px] transition",
+                    "h-7 flex-1 rounded-md border text-[12.5px] transition",
                     on
                       ? "border-primary bg-primary font-medium text-white"
                       : "border-border bg-panel text-foreground hover:border-primary/40 hover:bg-muted",
@@ -1993,23 +1993,23 @@ function PolishPanel(props: {
               if (e.key === "Enter" && canRun) onRun();
             }}
             placeholder="告诉 AI 你想怎么修改"
-            className="h-9 flex-1 rounded-full px-3.5 text-[13px]"
+            className="h-8 flex-1 rounded-full px-3.5 text-[13px]"
           />
           <button
             onClick={onRun}
             disabled={!canRun}
             title="开始润色"
             className={cn(
-              "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition",
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition",
               canRun
                 ? "bg-primary text-white hover:bg-[#1D4ED8]"
                 : "cursor-not-allowed bg-muted text-muted-foreground",
             )}
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-3.5 w-3.5" />
             )}
           </button>
         </div>
@@ -2069,13 +2069,13 @@ function ReviewPanel(props: {
     return (
       <>
         <div className="flex flex-1 flex-col items-center justify-center px-8 py-10 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-soft text-primary">
-            <ShieldAlert className="h-7 w-7" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-soft text-primary">
+            <ShieldAlert className="h-6 w-6" />
           </div>
-          <div className="mt-5 text-[15px] font-semibold text-foreground">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             智能审查
           </div>
-          <div className="mt-2 text-[12.5px] leading-relaxed text-muted-foreground">
+          <div className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
             自动检查政治敏感、语法逻辑、
             <br />
             格式规范与法律条款四类问题，
@@ -2084,7 +2084,7 @@ function ReviewPanel(props: {
           </div>
           <Button
             onClick={onStart}
-            className="mt-6 h-10 gap-1.5 bg-primary px-6 text-[14px] font-medium text-white hover:bg-[#1D4ED8]"
+            className="mt-5 h-9 gap-1.5 bg-primary px-6 text-[14px] font-medium text-white hover:bg-[#1D4ED8]"
           >
             <ListChecks className="h-4 w-4" /> 开始审查
           </Button>
@@ -2107,14 +2107,14 @@ function ReviewPanel(props: {
 
   return (
     <>
-      <div className="border-b px-4 py-3">
+      <div className="border-b px-5 py-2.5">
         <div className="flex items-center justify-between text-[12.5px] text-muted-foreground">
           <span>
             共 {suggestions.length} 条建议，
             <span className="text-primary">{pending}</span> 条待处理
           </span>
         </div>
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           <FilterChip
             active={filter === "all"}
             onClick={() => setFilter("all")}
@@ -2132,13 +2132,13 @@ function ReviewPanel(props: {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-5 py-2.5 scrollbar-thin">
         {filtered.length === 0 && (
           <div className="mt-10 text-center text-[13px] text-muted-foreground">
             当前分类下暂无建议
           </div>
         )}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {filtered.map((s) => {
             const style = CATEGORY_STYLE[s.category];
             const active = activeId === s.id;
@@ -2148,7 +2148,7 @@ function ReviewPanel(props: {
                 key={s.id}
                 onClick={() => onActivate(s.id)}
                 className={cn(
-                  "cursor-pointer rounded-lg border bg-panel p-3 transition",
+                  "cursor-pointer rounded-lg border bg-panel p-2.5 transition",
                   active
                     ? "border-primary shadow-[0_4px_16px_-8px_var(--color-primary)]"
                     : "border-border hover:border-primary/40",
@@ -2157,7 +2157,7 @@ function ReviewPanel(props: {
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className="rounded-full px-2 py-0.5 text-[11.5px] font-medium"
+                    className="rounded-full px-2 py-0 text-[11.5px] font-medium"
                     style={{ background: style.bg, color: style.fg }}
                   >
                     {s.category}
@@ -2173,20 +2173,20 @@ function ReviewPanel(props: {
                     </span>
                   )}
                 </div>
-                <div className="mt-2 space-y-1.5 text-[12.5px] leading-relaxed">
-                  <div className="rounded-md bg-[#FEF2F2] px-2 py-1.5 text-[#B91C1C] line-through decoration-[#DC2626]/60">
+                <div className="mt-1.5 space-y-1 text-[12.5px] leading-relaxed">
+                  <div className="rounded-md bg-[#FEF2F2] px-2 py-1 text-[#B91C1C] line-through decoration-[#DC2626]/60">
                     {s.original}
                   </div>
-                  <div className="rounded-md bg-primary-soft px-2 py-1.5 text-[#1D4ED8]">
+                  <div className="rounded-md bg-primary-soft px-2 py-1 text-[#1D4ED8]">
                     {s.suggestion}
                   </div>
                 </div>
-                <div className="mt-2 flex items-start gap-1 text-[11.5px] text-muted-foreground">
+                <div className="mt-1.5 flex items-start gap-1 text-[11.5px] text-muted-foreground">
                   <Info className="mt-0.5 h-3 w-3 shrink-0" />
                   <span>{s.explanation}</span>
                 </div>
                 {s.status === "pending" && (
-                  <div className="mt-3 flex items-center justify-end gap-1.5">
+                  <div className="mt-2 flex items-center justify-end gap-1.5">
                     <Button
                       size="sm"
                       variant="outline"
@@ -2194,7 +2194,7 @@ function ReviewPanel(props: {
                         e.stopPropagation();
                         onIgnore(s.id);
                       }}
-                      className="h-7 border-border px-2.5 text-[12px]"
+                      className="h-6 border-border px-2.5 text-[12px]"
                     >
                       忽略
                     </Button>
@@ -2204,7 +2204,7 @@ function ReviewPanel(props: {
                         e.stopPropagation();
                         onAccept(s.id);
                       }}
-                      className="h-7 bg-primary px-2.5 text-[12px] text-white hover:bg-[#1D4ED8]"
+                      className="h-6 bg-primary px-2.5 text-[12px] text-white hover:bg-[#1D4ED8]"
                     >
                       采纳
                     </Button>
@@ -2216,27 +2216,27 @@ function ReviewPanel(props: {
         </div>
       </div>
 
-      <div className="border-t bg-panel p-3">
+      <div className="border-t bg-panel p-2.5">
         <div className="grid grid-cols-3 gap-2">
           <Button
             variant="outline"
             onClick={onIgnoreAll}
             disabled={pending === 0}
-            className="h-9 border-border text-[12.5px]"
+            className="h-8 border-border text-[12.5px]"
           >
             全部忽略
           </Button>
           <Button
             variant="outline"
             onClick={onRerun}
-            className="h-9 border-border text-[12.5px]"
+            className="h-8 border-border text-[12.5px]"
           >
             <RefreshCw className="mr-1 h-3 w-3" /> 重新审查
           </Button>
           <Button
             onClick={onAcceptAll}
             disabled={pending === 0}
-            className="h-9 bg-primary text-[12.5px] text-white hover:bg-[#1D4ED8] disabled:opacity-50"
+            className="h-8 bg-primary text-[12.5px] text-white hover:bg-[#1D4ED8] disabled:opacity-50"
           >
             全部采纳
           </Button>
@@ -2261,7 +2261,7 @@ function FilterChip({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11.5px] transition",
+        "flex items-center gap-1 rounded-full border px-2.5 py-0 text-[11.5px] transition",
         active
           ? "border-primary bg-primary-soft text-primary"
           : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
