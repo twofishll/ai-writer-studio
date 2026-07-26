@@ -2261,7 +2261,7 @@ function FilterChip({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11.5px] transition",
+        "flex items-center gap-1 rounded-full border px-2.5 py-0 text-[11.5px] transition",
         active
           ? "border-primary bg-primary-soft text-primary"
           : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
