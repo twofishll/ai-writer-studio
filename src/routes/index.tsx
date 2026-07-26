@@ -3242,22 +3242,6 @@ function ArticleView({
           onClose={onCloseCitation}
         />
       )}
-
-      <AlertDialog open={comingSoonOpen} onOpenChange={setComingSoonOpen}>
-        <AlertDialogContent className="max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>模块待开发</AlertDialogTitle>
-            <AlertDialogDescription>
-              该功能模块正在开发中，敬请期待上线。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setComingSoonOpen(false)}>
-              知道了
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
