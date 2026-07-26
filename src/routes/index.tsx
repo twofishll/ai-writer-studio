@@ -40,6 +40,25 @@ import {
   MessageSquareQuote,
   Send,
   Eye,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Image as ImageIcon,
+  Link2,
+  Table,
+  Code2,
+  Undo2,
+  Redo2,
+  Highlighter,
+  Baseline,
+  Indent,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1194,6 +1213,10 @@ function Workbench() {
               请输入文章标题（必填，最多 50 字）
             </div>
           )}
+
+          <EditorToolbar />
+
+
 
           <div className="flex flex-1 overflow-hidden">
             {stage === "article" ? (
@@ -2406,11 +2429,186 @@ function InfoBar({ stage }: { stage: Stage }) {
   };
   if (!map[stage]) return null;
   return (
-    <div className="mb-5 flex items-center gap-2 rounded-md border border-primary/20 bg-primary-soft/60 px-3.5 py-2.5 text-[13px] text-primary">
-      <Info className="h-4 w-4" /> {map[stage]}
+    <div className="mb-3 flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary-soft/60 px-3 py-1 text-[12.5px] leading-5 text-primary">
+      <Info className="h-3.5 w-3.5 shrink-0" /> {map[stage]}
     </div>
   );
 }
+
+/* ============================== EditorToolbar ============================== */
+
+function ToolBtn({
+  icon: Icon,
+  label,
+  onClick,
+  active,
+}: {
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+  active?: boolean;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={onClick}
+          aria-label={label}
+          className={cn(
+            "flex h-7 w-7 items-center justify-center rounded transition",
+            active
+              ? "bg-primary-soft text-primary"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <Icon className="h-[15px] w-[15px]" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function ToolDivider() {
+  return <span className="mx-1 h-4 w-px bg-border" />;
+}
+
+function EditorToolbar() {
+  const [marks, setMarks] = useState<Record<string, boolean>>({});
+  const [align, setAlign] = useState("left");
+
+  const exec = (cmd: string, label: string, value?: string) => {
+    let ok = false;
+    try {
+      ok = document.execCommand(cmd, false, value);
+    } catch {
+      ok = false;
+    }
+    if (!ok) toast.info(`已应用「${label}」（请先在正文中选中文字）`);
+  };
+
+  const toggleMark = (key: string, cmd: string, label: string) => {
+    setMarks((m) => ({ ...m, [key]: !m[key] }));
+    exec(cmd, label);
+  };
+
+  return (
+    <div className="flex h-9 shrink-0 flex-wrap items-center gap-0.5 border-b bg-muted/60 px-4">
+      <ToolBtn icon={Undo2} label="撤销" onClick={() => exec("undo", "撤销")} />
+      <ToolBtn icon={Redo2} label="重做" onClick={() => exec("redo", "重做")} />
+      <ToolDivider />
+      <ToolBtn
+        icon={Bold}
+        label="加粗"
+        active={marks.bold}
+        onClick={() => toggleMark("bold", "bold", "加粗")}
+      />
+      <ToolBtn
+        icon={Italic}
+        label="斜体"
+        active={marks.italic}
+        onClick={() => toggleMark("italic", "italic", "斜体")}
+      />
+      <ToolBtn
+        icon={Underline}
+        label="下划线"
+        active={marks.underline}
+        onClick={() => toggleMark("underline", "underline", "下划线")}
+      />
+      <ToolBtn
+        icon={Strikethrough}
+        label="删除线"
+        active={marks.strike}
+        onClick={() => toggleMark("strike", "strikeThrough", "删除线")}
+      />
+      <ToolBtn
+        icon={Baseline}
+        label="字体颜色"
+        onClick={() => exec("foreColor", "字体颜色", "#2563EB")}
+      />
+      <ToolBtn
+        icon={Highlighter}
+        label="高亮"
+        onClick={() => exec("hiliteColor", "高亮", "#FEF3C7")}
+      />
+      <ToolDivider />
+      <ToolBtn
+        icon={List}
+        label="项目符号"
+        onClick={() => exec("insertUnorderedList", "项目符号")}
+      />
+      <ToolBtn
+        icon={ListOrdered}
+        label="编号列表"
+        onClick={() => exec("insertOrderedList", "编号列表")}
+      />
+      <ToolBtn icon={Indent} label="增加缩进" onClick={() => exec("indent", "增加缩进")} />
+      <ToolBtn icon={Quote} label="引用" onClick={() => exec("formatBlock", "引用", "blockquote")} />
+      <ToolDivider />
+      <ToolBtn
+        icon={AlignLeft}
+        label="左对齐"
+        active={align === "left"}
+        onClick={() => {
+          setAlign("left");
+          exec("justifyLeft", "左对齐");
+        }}
+      />
+      <ToolBtn
+        icon={AlignCenter}
+        label="居中对齐"
+        active={align === "center"}
+        onClick={() => {
+          setAlign("center");
+          exec("justifyCenter", "居中对齐");
+        }}
+      />
+      <ToolBtn
+        icon={AlignRight}
+        label="右对齐"
+        active={align === "right"}
+        onClick={() => {
+          setAlign("right");
+          exec("justifyRight", "右对齐");
+        }}
+      />
+      <ToolBtn
+        icon={AlignJustify}
+        label="两端对齐"
+        active={align === "justify"}
+        onClick={() => {
+          setAlign("justify");
+          exec("justifyFull", "两端对齐");
+        }}
+      />
+      <ToolDivider />
+      <ToolBtn
+        icon={Link2}
+        label="插入链接"
+        onClick={() => {
+          const url = window.prompt("请输入链接地址", "https://");
+          if (url) exec("createLink", "插入链接", url);
+        }}
+      />
+      <ToolBtn
+        icon={ImageIcon}
+        label="插入图片"
+        onClick={() => {
+          const url = window.prompt("请输入图片地址", "https://");
+          if (url) exec("insertImage", "插入图片", url);
+        }}
+      />
+      <ToolBtn
+        icon={Table}
+        label="插入表格"
+        onClick={() => toast.info("已插入 3×3 表格（示例）")}
+      />
+      <ToolBtn icon={Code2} label="代码块" onClick={() => exec("formatBlock", "代码块", "pre")} />
+    </div>
+  );
+}
+
 
 function EmptyState() {
   return (
