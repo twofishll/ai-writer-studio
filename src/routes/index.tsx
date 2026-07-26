@@ -38,22 +38,26 @@ import {
   CheckCircle2,
   XCircle,
   MessageSquareQuote,
+  Send,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -507,6 +511,32 @@ function loadPersisted(): Partial<Persisted> | null {
 
 function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function outlineToText(nodes: OutlineNode[]): string {
+  const lines: string[] = [];
+  nodes.forEach((n) => {
+    lines.push(n.title);
+    (n.children ?? []).forEach((c) => lines.push(`  ${c.title}`));
+  });
+  return lines.join("\n");
+}
+
+function textToOutline(text: string): OutlineNode[] {
+  const roots: OutlineNode[] = [];
+  text.split("\n").forEach((raw, i) => {
+    const line = raw.trim();
+    if (!line) return;
+    const isChild = /^\s/.test(raw) || /^\d+[.．]\d/.test(line);
+    const node: OutlineNode = { id: `n${i}-${line.slice(0, 6)}`, title: line };
+    if (isChild && roots.length) {
+      const parent = roots[roots.length - 1];
+      parent.children = [...(parent.children ?? []), node];
+    } else {
+      roots.push({ ...node, children: [] });
+    }
+  });
+  return roots;
 }
 
 function cloneSections(s: Section[]): Section[] {
@@ -2983,14 +3013,18 @@ function buildExportHtml(title: string, sections: Section[], citations: Citation
       const tag = s.level === 1 ? "h1" : "h2";
       const ps = s.paragraphs
         .map(
-          (p) => `<p>${p.text}${p.cite ? `<sup>[${p.cite}]</sup>` : ""}</p>`,
+          (p) =>
+            `<p>${p.text}${(p.cites ?? []).map((c) => `<sup>[${c}]</sup>`).join("")}</p>`,
         )
         .join("");
       return `<${tag}>${s.title}</${tag}>${ps}`;
     })
     .join("");
   const refs = citations
-    .map((c) => `<li>[${c.id}] ${c.source} · ${c.section}</li>`)
+    .map(
+      (c) =>
+        `<li>[${c.id}] ${SOURCE_DOCS.find((d) => d.id === c.docId)?.name ?? ""} · 第 ${c.page} 页 · ${c.section}</li>`,
+    )
     .join("");
   return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${title}</title><style>body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:780px;margin:40px auto;padding:0 24px;color:#1F2937;line-height:1.9}h1{font-size:24px}h2{font-size:18px;margin-top:20px}sup{color:#0F766E;font-weight:600;margin:0 2px}ol{color:#4b5563;font-size:13px}</style></head><body><h1 style="font-size:26px;text-align:center">${title}</h1>${body}<hr/><h3>引用来源</h3><ol>${refs}</ol></body></html>`;
 }
