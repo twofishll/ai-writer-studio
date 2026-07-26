@@ -197,10 +197,6 @@ const ARTICLE_TYPES: ArticleType[] = [
   "整改报告",
   "学习体会",
   "事件类型",
-  "通告",
-  "议案",
-  "请示",
-  "决议",
   "通知",
   "参阅材料",
   "典型案例",
@@ -1249,7 +1245,7 @@ function Workbench() {
         </main>
 
         {/* ============ RIGHT PANEL ============ */}
-        <aside className="flex w-[332px] shrink-0 flex-col border-l bg-panel">
+        <aside className="flex w-[296px] shrink-0 flex-col border-l bg-panel">
           {/* tabs — fixed */}
           <div className="flex h-11 shrink-0 items-center border-b">
             {(
@@ -1447,7 +1443,7 @@ function WritePanel(props: {
   const p = props;
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-thin">
         <FieldLabel required>文章类型</FieldLabel>
         <div className="mt-2 grid grid-cols-4 gap-2">
           {ARTICLE_TYPES.map((t) => (
@@ -1455,7 +1451,7 @@ function WritePanel(props: {
               key={t}
               onClick={() => p.setArticleType(t)}
               className={cn(
-                "h-8 rounded-md border text-[12.5px] transition",
+                "h-8 rounded-md border text-[12px] transition",
                 p.articleType === t
                   ? "border-primary bg-primary-soft font-medium text-primary"
                   : "border-border text-foreground hover:border-primary/40 hover:bg-muted",
