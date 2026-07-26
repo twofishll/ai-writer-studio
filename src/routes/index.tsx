@@ -2263,10 +2263,34 @@ function FieldLabel({
   className?: string;
 }) {
   return (
-    <div className={cn("text-[13px] font-medium text-foreground", className)}>
-      {required && <span className="mr-0.5 text-destructive">*</span>}
+    <div
+      className={cn(
+        "flex items-center gap-1 text-[13px] font-medium text-foreground",
+        className,
+      )}
+    >
+      {required && <span className="text-destructive">*</span>}
       {children}
     </div>
+  );
+}
+
+function InfoTip({ text }: { text: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label="说明"
+          className="inline-flex items-center text-muted-foreground transition hover:text-primary"
+        >
+          <Info className="h-3.5 w-3.5" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[240px] text-[12px]">
+        {text}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
