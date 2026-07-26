@@ -648,9 +648,20 @@ function Workbench() {
   };
 
   const openCitation = (id: string) => {
-    const c = CITATIONS.find((x) => x.id === id);
-    if (c) setActiveCite(c);
+    setActiveCiteId(id);
   };
+
+  const handlePickKbDoc = () => {
+    const pool = [
+      "集团数字化转型总体规划.pdf",
+      "知识库运营管理办法.docx",
+      "2026 年信息化预算说明.xlsx",
+    ];
+    const name = pool[kbDocs.length % pool.length];
+    setKbDocs((arr) => [...arr, name]);
+    toast.success(`已选择 ${name}`);
+  };
+
 
   const totalSections = useMemo(() => flattenOutline(outline).length, [outline]);
 
