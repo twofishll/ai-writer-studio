@@ -902,6 +902,7 @@ function Workbench() {
   /* ============================== render ============================== */
 
   return (
+    <TooltipProvider delayDuration={150}>
     <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground">
       {/* ============ TOP BAR ============ */}
       <header
