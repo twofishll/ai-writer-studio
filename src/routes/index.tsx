@@ -1579,7 +1579,7 @@ function WritePanel(props: {
           })}
         </div>
 
-        <FieldLabel required className="mt-5">
+        <FieldLabel required className="mt-4">
           文章标题
         </FieldLabel>
         <Input
@@ -1590,7 +1590,7 @@ function WritePanel(props: {
           }}
           placeholder="请输入文章标题"
           className={cn(
-            "mt-2 h-9 text-[13px]",
+            "mt-1.5 h-8 text-[13px]",
             p.titleError && "border-destructive focus-visible:ring-destructive/30",
           )}
           maxLength={50}
@@ -1599,13 +1599,13 @@ function WritePanel(props: {
           <div className="mt-1 text-[12px] text-destructive">标题为必填项</div>
         )}
 
-        <FieldLabel required className="mt-5">
+        <FieldLabel required className="mt-4">
           <span className="flex items-center gap-1">
             最大字数
             <InfoTip text="生成正文的目标字数上限，默认 2000 字，最大 10000 字。" />
           </span>
         </FieldLabel>
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-1.5 flex items-center gap-3">
           <Slider
             value={[p.maxWords]}
             min={1000}
@@ -1626,12 +1626,12 @@ function WritePanel(props: {
               );
               p.setMaxWords(v);
             }}
-            className="h-8 w-20 text-center text-[13px]"
+            className="h-7 w-20 text-center text-[13px]"
           />
         </div>
 
         {/* ---- 内容概要 ---- */}
-        <div className="mt-5 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
           <FieldLabel required>内容概要</FieldLabel>
           <button
             onClick={p.handleGenSummary}
@@ -1650,8 +1650,8 @@ function WritePanel(props: {
           value={p.summary}
           onChange={(e) => p.setSummary(e.target.value.slice(0, 500))}
           placeholder="手动输入内容概要，或点击「AI 生成」"
-          rows={4}
-          className="mt-2 resize-none text-[13px]"
+          rows={3}
+          className="mt-1.5 resize-none text-[13px]"
         />
         <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
           {p.summary.length}/500
@@ -1677,8 +1677,8 @@ function WritePanel(props: {
           value={p.outlineText}
           onChange={(e) => p.setOutlineText(e.target.value)}
           placeholder={"手动输入大纲，每行一节，子节以空格或缩进开头，例如：\n一、总体情况\n  1.1 建设背景"}
-          rows={6}
-          className="mt-2 resize-none text-[13px] leading-relaxed"
+          rows={4}
+          className="mt-1.5 resize-none text-[13px] leading-relaxed"
         />
         <div className="mt-1 text-[11.5px] text-muted-foreground">
           {p.hasOutline ? "大纲已同步至左侧，可在左侧继续编辑" : "支持手动输入或 AI 生成"}
