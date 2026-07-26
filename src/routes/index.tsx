@@ -1486,7 +1486,7 @@ function WritePanel(props: {
         )}
 
         {/* ---- 格式模板 ---- */}
-        <div className="mt-5 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
           <FieldLabel required>格式模板</FieldLabel>
           <button
             onClick={() => {
@@ -1506,7 +1506,7 @@ function WritePanel(props: {
             <Plus className="h-3.5 w-3.5" /> 自定义
           </button>
         </div>
-        <div className="mt-2 divide-y rounded-md border border-border">
+        <div className="mt-1.5 divide-y rounded-md border border-border">
           {p.templates.map((t) => {
             const checked = p.template === t.value;
             return (
@@ -1514,7 +1514,7 @@ function WritePanel(props: {
                 key={t.value}
                 onClick={() => p.setTemplate(t.value)}
                 className={cn(
-                  "group flex cursor-pointer items-center gap-2 px-3 py-2 text-[13px] transition",
+                  "group flex cursor-pointer items-center gap-2 px-3 py-1.5 text-[13px] transition",
                   checked ? "bg-primary-soft/60 text-primary" : "hover:bg-muted",
                 )}
               >
