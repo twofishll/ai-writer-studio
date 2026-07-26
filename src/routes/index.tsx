@@ -1290,6 +1290,8 @@ function Workbench() {
 function WritePanel(props: {
   articleType: ArticleType;
   setArticleType: (v: ArticleType) => void;
+  templates: FormatTemplate[];
+  setTemplates: React.Dispatch<React.SetStateAction<FormatTemplate[]>>;
   template: string;
   setTemplate: (v: string) => void;
   title: string;
@@ -1302,12 +1304,18 @@ function WritePanel(props: {
   setSummary: (v: string) => void;
   handleGenSummary: () => void;
   loadingSummary: boolean;
-  outline: OutlineNode[];
+  outlineText: string;
+  setOutlineText: (v: string) => void;
   hasOutline: boolean;
   handleGenOutline: () => void;
   loadingOutline: boolean;
+  refMode: RefMode;
+  setRefMode: (v: RefMode) => void;
   files: string[];
   setFiles: React.Dispatch<React.SetStateAction<string[]>>;
+  kbDocs: string[];
+  onPickKbDoc: () => void;
+  setKbDocs: React.Dispatch<React.SetStateAction<string[]>>;
   kb: string[];
   toggleKb: (id: string) => void;
   handleUpload: () => void;
@@ -1338,25 +1346,98 @@ function WritePanel(props: {
           ))}
         </div>
 
+        {/* ---- 格式模板 ---- */}
         <div className="mt-5 flex items-center justify-between">
           <FieldLabel required>格式模板</FieldLabel>
-          <button className="flex items-center gap-1 text-[12.5px] text-primary hover:underline">
+          <button
+            onClick={() => {
+              const idx =
+                p.templates.filter((t) => t.custom).length + 1;
+              const nt: FormatTemplate = {
+                value: `custom-${Date.now()}`,
+                label: `自定义格式 ${idx}`,
+                custom: true,
+              };
+              p.setTemplates((arr) => [...arr, nt]);
+              p.setTemplate(nt.value);
+              toast.success("已新增自定义格式");
+            }}
+            className="flex items-center gap-1 text-[12.5px] text-primary hover:underline"
+          >
             <Plus className="h-3.5 w-3.5" /> 自定义
           </button>
         </div>
-        <div className="mt-2">
-          <Select value={p.template} onValueChange={p.setTemplate}>
-            <SelectTrigger className="h-9 text-[13px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {TEMPLATES.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="mt-2 divide-y rounded-md border border-border">
+          {p.templates.map((t) => {
+            const checked = p.template === t.value;
+            return (
+              <div
+                key={t.value}
+                onClick={() => p.setTemplate(t.value)}
+                className={cn(
+                  "group flex cursor-pointer items-center gap-2 px-3 py-2 text-[13px] transition",
+                  checked ? "bg-primary-soft/60 text-primary" : "hover:bg-muted",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border",
+                    checked ? "border-primary" : "border-border",
+                  )}
+                >
+                  {checked && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  )}
+                </span>
+                <span className="flex-1 truncate">{t.label}</span>
+                {t.custom && (
+                  <span className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toast.success(`预览「${t.label}」`);
+                      }}
+                      className="rounded p-1 text-muted-foreground hover:text-primary"
+                      title="预览"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const name = window.prompt("重命名格式", t.label);
+                        if (name?.trim())
+                          p.setTemplates((arr) =>
+                            arr.map((x) =>
+                              x.value === t.value
+                                ? { ...x, label: name.trim() }
+                                : x,
+                            ),
+                          );
+                      }}
+                      className="rounded p-1 text-muted-foreground hover:text-primary"
+                      title="编辑"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        p.setTemplates((arr) =>
+                          arr.filter((x) => x.value !== t.value),
+                        );
+                        if (checked) p.setTemplate("default");
+                      }}
+                      className="rounded p-1 text-muted-foreground hover:text-destructive"
+                      title="删除"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <FieldLabel required className="mt-5">
@@ -1410,6 +1491,7 @@ function WritePanel(props: {
           />
         </div>
 
+        {/* ---- 内容概要 ---- */}
         <div className="mt-5 flex items-center justify-between">
           <FieldLabel required>内容概要</FieldLabel>
           <button
@@ -1428,7 +1510,7 @@ function WritePanel(props: {
         <Textarea
           value={p.summary}
           onChange={(e) => p.setSummary(e.target.value.slice(0, 500))}
-          placeholder="手动输入"
+          placeholder="手动输入内容概要，或点击「AI 生成」"
           rows={4}
           className="mt-2 resize-none text-[13px]"
         />
@@ -1436,6 +1518,7 @@ function WritePanel(props: {
           {p.summary.length}/500
         </div>
 
+        {/* ---- 文章大纲 ---- */}
         <div className="mt-3 flex items-center justify-between">
           <FieldLabel>文章大纲</FieldLabel>
           <button
@@ -1451,72 +1534,19 @@ function WritePanel(props: {
             AI 生成
           </button>
         </div>
-        <div className="mt-2 rounded-md border border-dashed border-border bg-muted/40 px-3 py-2.5 text-[12.5px] text-muted-foreground">
-          {p.hasOutline
-            ? `已生成 ${p.outline.length} 个章节，可在左侧编辑`
-            : "点击「AI 生成」或在左侧手动输入大纲"}
+        <Textarea
+          value={p.outlineText}
+          onChange={(e) => p.setOutlineText(e.target.value)}
+          placeholder={"手动输入大纲，每行一节，子节以空格或缩进开头，例如：\n一、总体情况\n  1.1 建设背景"}
+          rows={6}
+          className="mt-2 resize-none text-[13px] leading-relaxed"
+        />
+        <div className="mt-1 text-[11.5px] text-muted-foreground">
+          {p.hasOutline ? "大纲已同步至左侧，可在左侧继续编辑" : "支持手动输入或 AI 生成"}
         </div>
 
-        <FieldLabel className="mt-5">内容参考</FieldLabel>
-        <div className="mt-2 space-y-2">
-          <button
-            onClick={p.handleUpload}
-            className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-border py-2 text-[13px] text-muted-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
-          >
-            <Upload className="h-3.5 w-3.5" /> 上传文件
-          </button>
-          {p.files.length > 0 && (
-            <div className="space-y-1">
-              {p.files.map((f, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
-                >
-                  <FileText className="h-3.5 w-3.5 text-primary" />
-                  <span className="flex-1 truncate">{f}</span>
-                  <button
-                    onClick={() =>
-                      p.setFiles((arr) => arr.filter((_, idx) => idx !== i))
-                    }
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="rounded-md border border-border p-2">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[12px] text-muted-foreground">
-              <Database className="h-3 w-3" /> 选择知识库
-            </div>
-            <div className="space-y-1">
-              {KB_OPTIONS.map((o) => {
-                const checked = p.kb.includes(o.id);
-                return (
-                  <label
-                    key={o.id}
-                    className={cn(
-                      "flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] transition",
-                      checked ? "bg-primary-soft text-primary" : "hover:bg-muted",
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      className="accent-[var(--color-primary)]"
-                      checked={checked}
-                      onChange={() => p.toggleKb(o.id)}
-                    />
-                    <span className="flex-1">{o.name}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <FieldLabel className="mt-5">其他要求</FieldLabel>
+        {/* ---- 其他提示说明 ---- */}
+        <FieldLabel className="mt-5">其他提示说明</FieldLabel>
         <Textarea
           value={p.otherReq}
           onChange={(e) => p.setOtherReq(e.target.value.slice(0, 200))}
@@ -1524,9 +1554,158 @@ function WritePanel(props: {
           rows={3}
           className="mt-2 resize-none text-[13px]"
         />
-        <div className="mt-1 mb-2 text-right text-[11.5px] text-muted-foreground">
+        <div className="mt-1 text-right text-[11.5px] text-muted-foreground">
           {p.otherReq.length}/200
         </div>
+
+        {/* ---- 内容参考 ---- */}
+        <FieldLabel className="mt-5">
+          <span className="flex items-center gap-1">
+            内容参考
+            <Info className="h-3 w-3 text-muted-foreground" />
+          </span>
+        </FieldLabel>
+        <div className="mt-2 flex items-center gap-5">
+          {(
+            [
+              { v: "upload", label: "上传文件" },
+              { v: "kb", label: "从知识库选择文档" },
+            ] as { v: RefMode; label: string }[]
+          ).map((o) => (
+            <label
+              key={o.v}
+              className="flex cursor-pointer items-center gap-1.5 text-[13px] text-foreground"
+            >
+              <span
+                className={cn(
+                  "flex h-3.5 w-3.5 items-center justify-center rounded-full border",
+                  p.refMode === o.v ? "border-primary" : "border-border",
+                )}
+                onClick={() => p.setRefMode(o.v)}
+              >
+                {p.refMode === o.v && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                )}
+              </span>
+              <span onClick={() => p.setRefMode(o.v)}>{o.label}</span>
+            </label>
+          ))}
+        </div>
+
+        {p.refMode === "upload" ? (
+          <div className="mt-2 space-y-2">
+            <button
+              onClick={p.handleUpload}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+            >
+              <Upload className="h-3.5 w-3.5" /> 上传文件
+            </button>
+            {p.files.map((f, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+              >
+                <FileText className="h-3.5 w-3.5 text-primary" />
+                <span className="flex-1 truncate">{f}</span>
+                <button
+                  onClick={() =>
+                    p.setFiles((arr) => arr.filter((_, idx) => idx !== i))
+                  }
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-2 space-y-2">
+            <button
+              onClick={p.onPickKbDoc}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary"
+            >
+              <Plus className="h-3.5 w-3.5" /> 选择文档
+            </button>
+            {p.kbDocs.map((f, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+              >
+                <FileText className="h-3.5 w-3.5 text-primary" />
+                <span className="flex-1 truncate">{f}</span>
+                <button
+                  onClick={() =>
+                    p.setKbDocs((arr) => arr.filter((_, idx) => idx !== i))
+                  }
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ---- 引用知识库 ---- */}
+        <FieldLabel className="mt-5">
+          <span className="flex items-center gap-1">
+            引用知识库
+            <Info className="h-3 w-3 text-muted-foreground" />
+          </span>
+        </FieldLabel>
+        <div className="mt-2 space-y-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex w-full items-center justify-center gap-2 rounded-md border border-border py-2 text-[13px] text-foreground transition hover:border-primary/50 hover:bg-primary-soft/60 hover:text-primary">
+                <Plus className="h-3.5 w-3.5" /> 添加知识库
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-[280px] p-2">
+              <div className="space-y-1">
+                {KB_OPTIONS.map((o) => {
+                  const checked = p.kb.includes(o.id);
+                  return (
+                    <label
+                      key={o.id}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-[13px] transition",
+                        checked ? "bg-primary-soft text-primary" : "hover:bg-muted",
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        className="accent-[var(--color-primary)]"
+                        checked={checked}
+                        onChange={() => p.toggleKb(o.id)}
+                      />
+                      <span className="flex-1">{o.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+          {p.kb.map((id) => {
+            const o = KB_OPTIONS.find((x) => x.id === id);
+            if (!o) return null;
+            return (
+              <div
+                key={id}
+                className="flex items-center gap-2 rounded-md bg-muted px-2.5 py-1.5 text-[12.5px]"
+              >
+                <Database className="h-3.5 w-3.5 text-primary" />
+                <span className="flex-1 truncate">{o.name}</span>
+                <button
+                  onClick={() => p.toggleKb(id)}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        <div className="h-2" />
       </div>
 
       <div className="border-t bg-panel p-3">
