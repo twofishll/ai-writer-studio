@@ -217,6 +217,7 @@ const KB_OPTIONS: KnowledgeBase[] = [
 ];
 
 const DEFAULT_TITLE = "";
+const DEMO_TITLE = "关于推进企业 AI 能力建设的阶段性工作报告";
 const DEFAULT_SUMMARY = "";
 const DEFAULT_OTHER = "";
 
@@ -597,6 +598,9 @@ function Workbench() {
 
   const articleRef = useRef<HTMLDivElement>(null);
   const restoredRef = useRef(false);
+  const demoRef = useRef<null | { stage: Stage; sections: Section[]; title: string }>(
+    null,
+  );
 
   useEffect(() => {
     if (restoredRef.current) return;
@@ -680,6 +684,7 @@ function Workbench() {
       setGenProgress(Math.round(((i + 1) / total) * 100));
     }
     await delay(200);
+    demoRef.current = null;
     setSections(cloneSections(MOCK_ARTICLE));
     setStage("article");
     toast.success("全文生成完成");
@@ -790,9 +795,26 @@ function Workbench() {
     }
     if (t === "polish" || t === "review") {
       if (stage !== "article") {
+        // 尚未生成正文：注入演示数据，并记录进入前的状态以便返回
+        if (!demoRef.current) {
+          demoRef.current = { stage, sections: cloneSections(sections), title };
+        }
         setSections(cloneSections(MOCK_ARTICLE));
+        if (!title.trim()) setTitle(DEMO_TITLE);
         setStage("article");
+        toast.info("当前展示的是示例正文，返回「AI 写作」可继续生成");
       }
+    } else if (t === "write" && demoRef.current) {
+      // 返回写作页：还原到生成前的初始状态
+      const snap = demoRef.current;
+      demoRef.current = null;
+      setStage(snap.stage);
+      setSections(snap.sections);
+      setTitle(snap.title);
+      setActiveCiteId(null);
+      setSuggestions([]);
+      setReviewStarted(false);
+      setReviewFilter("all");
     }
   };
 
