@@ -552,6 +552,7 @@ function cloneSections(s: Section[]): Section[] {
 function Workbench() {
   const [title, setTitle] = useState(DEFAULT_TITLE);
   const [articleType, setArticleType] = useState<ArticleType>("工作报告");
+  const [customType, setCustomType] = useState("");
   const [templates, setTemplates] = useState<FormatTemplate[]>(TEMPLATES);
   const [template, setTemplate] = useState("default");
   const [maxWords, setMaxWords] = useState(3000);
@@ -1044,7 +1045,7 @@ function Workbench() {
     <div className="flex h-screen w-full flex-col overflow-hidden bg-background text-foreground">
       {/* ============ TOP BAR ============ */}
       <header
-        className="flex h-14 shrink-0 items-center border-b"
+        className="flex h-13 shrink-0 items-center border-b"
         style={{
           background: "var(--color-topbar)",
           color: "var(--color-topbar-foreground)",
@@ -1054,7 +1055,7 @@ function Workbench() {
         <div
           className={cn(
             "flex h-full items-center gap-2 border-r px-4 transition-all",
-            collapsedSidebar ? "w-14" : "w-[200px]",
+            collapsedSidebar ? "w-14" : "w-[184px]",
           )}
           style={{ borderColor: "var(--color-topbar-border)" }}
         >
@@ -1130,7 +1131,7 @@ function Workbench() {
         <aside
           className={cn(
             "flex shrink-0 flex-col overflow-y-auto transition-all scrollbar-thin",
-            collapsedSidebar ? "w-14" : "w-[200px]",
+            collapsedSidebar ? "w-14" : "w-[184px]",
           )}
           style={{
             background: "var(--color-sidebar)",
@@ -1245,7 +1246,7 @@ function Workbench() {
         </main>
 
         {/* ============ RIGHT PANEL ============ */}
-        <aside className="flex w-[360px] shrink-0 flex-col border-l bg-panel">
+        <aside className="flex w-[332px] shrink-0 flex-col border-l bg-panel">
           {/* tabs — fixed */}
           <div className="flex h-11 shrink-0 items-center border-b">
             {(
@@ -1277,6 +1278,8 @@ function Workbench() {
             <WritePanel
               articleType={articleType}
               setArticleType={setArticleType}
+              customType={customType}
+              setCustomType={setCustomType}
               templates={templates}
               setTemplates={setTemplates}
               template={template}
@@ -1402,6 +1405,8 @@ function Workbench() {
 function WritePanel(props: {
   articleType: ArticleType;
   setArticleType: (v: ArticleType) => void;
+  customType: string;
+  setCustomType: (v: string) => void;
   templates: FormatTemplate[];
   setTemplates: React.Dispatch<React.SetStateAction<FormatTemplate[]>>;
   template: string;
@@ -1598,7 +1603,7 @@ function WritePanel(props: {
         <FieldLabel required className="mt-5">
           <span className="flex items-center gap-1">
             最大字数
-            <Info className="h-3 w-3 text-muted-foreground" />
+            <InfoTip text="生成正文的目标字数上限，默认 2000 字，最大 10000 字。" />
           </span>
         </FieldLabel>
         <div className="mt-2 flex items-center gap-3">
@@ -1697,7 +1702,7 @@ function WritePanel(props: {
         <FieldLabel className="mt-5">
           <span className="flex items-center gap-1">
             内容参考
-            <Info className="h-3 w-3 text-muted-foreground" />
+            <InfoTip text="可上传本地文件或从知识库选择文档，AI 将参考其内容进行写作，并在正文中生成引用标注。" />
           </span>
         </FieldLabel>
         <div className="mt-2 flex items-center gap-5">
@@ -1785,7 +1790,7 @@ function WritePanel(props: {
         <FieldLabel className="mt-5">
           <span className="flex items-center gap-1">
             引用知识库
-            <Info className="h-3 w-3 text-muted-foreground" />
+            <InfoTip text="选择需要检索的知识库范围，AI 会优先从所选知识库中检索相关资料作为写作依据。" />
           </span>
         </FieldLabel>
         <div className="mt-2 space-y-2">
