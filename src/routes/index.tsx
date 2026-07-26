@@ -217,6 +217,7 @@ const KB_OPTIONS: KnowledgeBase[] = [
 ];
 
 const DEFAULT_TITLE = "";
+const DEMO_TITLE = "关于推进企业 AI 能力建设的阶段性工作报告";
 const DEFAULT_SUMMARY = "";
 const DEFAULT_OTHER = "";
 
