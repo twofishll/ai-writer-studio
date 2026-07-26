@@ -1134,6 +1134,8 @@ function Workbench() {
             <WritePanel
               articleType={articleType}
               setArticleType={setArticleType}
+              templates={templates}
+              setTemplates={setTemplates}
               template={template}
               setTemplate={setTemplate}
               title={title}
@@ -1146,12 +1148,18 @@ function Workbench() {
               setSummary={setSummary}
               handleGenSummary={handleGenSummary}
               loadingSummary={loadingSummary}
-              outline={outline}
+              outlineText={outlineText}
+              setOutlineText={handleOutlineTextChange}
               hasOutline={hasOutline}
               handleGenOutline={handleGenOutline}
               loadingOutline={loadingOutline}
+              refMode={refMode}
+              setRefMode={setRefMode}
               files={files}
               setFiles={setFiles}
+              kbDocs={kbDocs}
+              setKbDocs={setKbDocs}
+              onPickKbDoc={handlePickKbDoc}
               kb={kb}
               toggleKb={toggleKb}
               handleUpload={handleUpload}
@@ -1161,6 +1169,7 @@ function Workbench() {
               generating={stage === "generating"}
             />
           )}
+
 
           {rightTab === "polish" && (
             <PolishPanel
