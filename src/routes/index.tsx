@@ -1500,11 +1500,6 @@ function WritePanel(props: {
                   "border-destructive/60 focus-visible:ring-destructive/30",
               )}
             />
-            {!p.customType.trim() && (
-              <div className="mt-1 text-[12px] text-destructive">
-                其它文章类型为必填项
-              </div>
-            )}
           </>
         )}
 
