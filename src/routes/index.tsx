@@ -1157,8 +1157,20 @@ function Workbench() {
           }}
         >
           <nav className="flex flex-col gap-0.5 px-2 py-3">
-            <NavItem icon={Home} label="首页" collapsed={collapsedSidebar} />
-            <NavItem icon={Layers} label="工作空间" collapsed={collapsedSidebar} />
+            <NavItem
+              icon={Home}
+              label="首页"
+              collapsed={collapsedSidebar}
+              comingSoon
+              onClick={() => toast.info("该模块待开发，敬请期待")}
+            />
+            <NavItem
+              icon={Layers}
+              label="工作空间"
+              collapsed={collapsedSidebar}
+              comingSoon
+              onClick={() => toast.info("该模块待开发，敬请期待")}
+            />
             <NavItem
               icon={PenLine}
               label="智能写作"
@@ -1169,20 +1181,29 @@ function Workbench() {
               icon={BookOpen}
               label="知识库"
               collapsed={collapsedSidebar}
-              items={["知识库管理", "知识库应用", "数据分析"]}
+              items={["知识库管理", "数据分析"]}
+              itemComingSoon
             />
             <NavGroup
               icon={Boxes}
               label="模型管理"
               collapsed={collapsedSidebar}
-              items={["注册模型", "启动模型", "运行模型", "集群信息"]}
+              items={["注册模型", "模型评测"]}
+              itemComingSoon
             />
-            <NavItem icon={Activity} label="运行监控" collapsed={collapsedSidebar} />
+            <NavItem
+              icon={Activity}
+              label="运行监控"
+              collapsed={collapsedSidebar}
+              comingSoon
+              onClick={() => toast.info("该模块待开发，敬请期待")}
+            />
             <NavGroup
               icon={Users}
               label="系统管理"
               collapsed={collapsedSidebar}
               items={["用户管理", "权限管理", "角色管理"]}
+              itemComingSoon
             />
           </nav>
         </aside>
